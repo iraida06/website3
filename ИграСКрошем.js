@@ -729,7 +729,7 @@ function playAgain() {
 
 function goToNextAdventure() {
     // Перенаправление на главную страницу или следующее приключение
-    window.location.href = '../ГлавнаяОр/ГлавнаяОр.html#adventures';
+    window.location.href = 'index.html#adventures';
 }
 
 // Управление экраном
@@ -832,4 +832,5 @@ style.textContent = `
         color: #7f1d1d !important;
     }
 `;
+
 document.head.appendChild(style);
