@@ -598,7 +598,7 @@ function playAgain() {
 
 function goToNextAdventure() {
     // Redirect to main page or next adventure
-    window.location.href = '../ГлавнаяОр/ГлавнаяОр.html';
+    window.location.href = 'index.html';
 }
 
 // Screen management
@@ -685,4 +685,5 @@ function showScorePopup(x, y, text) {
     setTimeout(() => {
         popup.remove();
     }, 2000);
+
 }
