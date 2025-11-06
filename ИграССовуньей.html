@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Садовые приключения с Совуньей - Выращиваем цветы</title>
+    <link rel="stylesheet" href="ИграССовуньей.css">
+    <script src="ИграССовуньей.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Заголовок игры -->
+        <header class="game-header">
+            <div class="header-content">
+                <!-- Кнопка "Вернуться на главную" -->
+                <button class="backHomeBtn" onclick="location.href='../ГлавнаяОр/ГлавнаяОр.html'">
+                    <img src="ФотоСовунья/Иконка.png" alt="Иконка" class="backIcon"/>Вернуться <br> на главную
+                    </button>    
+                <div class="brand">
+                    <img class="brand-icon" src="ФотоСовунья/Цветок.png" alt="Цветок"/>
+                    <div class="brand-text">
+                        <h1>Садовые приключения</h1>
+                        <p>с Совуньей</p>
+                    </div>
+                </div>
+                <div class="score-board">
+                    <div class="score-item">
+                        <img class="score-emoji" src="ФотоСовунья/Звезда.png"/>
+                        <span class="score-value" id="score">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Вступительный экран игры -->
+        <div class="game-screen" id="introScreen">
+            <div class="intro-content">
+                <div class="sovunya-character">
+                    <img class="character-avatar" src="ФотоСовунья/Совунья.png"/>
+                    <div class="character-speech">
+                        <p>Привет! Я Совунья! Хочешь научиться выращивать красивые цветы и создать волшебный сад? Я расскажу тебе все секреты садоводства!</p>
+                        <div class="speech-tail"></div>
+                    </div>
+                </div>
+                <div class="intro-features">
+                    <div class="feature">
+                        <img class="feature-icon1" src="ФотоСовунья/Расток.png"/>
+                        <h3>Выращиваем растения</h3>
+                        <p>Учимся ухаживать за цветами</p>
+                    </div>
+                    <div class="feature">
+                        <img class="feature-icon2" src="ФотоСовунья/Цветок.png"/>
+                        <h3>Создаём красоту</h3>
+                        <p>Узнаем о разных видах цветов</p>
+                    </div>
+                </div>
+                <button class="start-button" onclick="startLecture()">
+                    <span>Начать приключение!</span>
+                    <div class="button-petals">
+                        <div class="petal">🌸</div>
+                        <div class="petal">🌺</div>
+                        <div class="petal">🌻</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Lecture Screen -->
+        <div class="game-screen" id="lectureScreen" style="display: none;">
+            <div class="lecture-content">
+                <div class="lecture-header">
+                    <h2>Урок от Совуньи: Секреты выращивания цветов!</h2>
+                    <p>Перед началом садовых работ давай узнаем, что нужно растениям для счастливой жизни!</p>
+                </div>
+                
+                <div class="lecture-slides">
+                    <div class="slide active" id="slide1">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Что нужно растениям для роста?</h3>
+                                <ul>
+                                    <li>Солнечный свет - источник энергии для фотосинтеза</li>
+                                    <li>Вода - помогает переносить питательные вещества</li>
+                                    <li>Плодородная почва - содержит необходимые минералы</li>
+                                    <li>Свежий воздух - нужен для дыхания растений</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide2">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Популярные садовые цветы</h3>
+                                <ul>
+                                    <li>Розы - королевы сада, любят солнце</li>
+                                    <li>Подсолнухи - всегда поворачиваются к солнцу</li>
+                                    <li>Тюльпаны - первые весенние цветы</li>
+                                    <li>Петунии - цветут всё лето до заморозков</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide3">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Правильный полив</h3>
+                                <ul>
+                                    <li>Лучшее время - утром или вечером</li>
+                                    <li>Поливать нужно под корень, а не по листьям</li>
+                                    <li>Лучше реже, но обильнее</li>
+                                    <li>В дождливую погоду полив не нужен</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide4">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Уход за садом</h3>
+                                <ul>
+                                    <li>Прополка - удаляем сорняки, чтобы не мешали</li>
+                                    <li>Рыхление - помогает корням дышать</li>
+                                    <li>Обрезка - убираем увядшие цветы</li>
+                                    <li>Подкормка - даём растениям витамины</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide5">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Друзья сада</h3>
+                                <ul>
+                                    <li>Пчёлы - опыляют цветы и помогают размножаться</li>
+                                    <li>Божьи коровки - поедают вредных тлей</li>
+                                    <li>Бабочки - украшают сад и переносят пыльцу</li>
+                                    <li>Дождевые черви - делают почву плодородной</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lecture-navigation">
+                    <button class="nav-button prev" onclick="previousSlide()" disabled>
+                        <span>◀ Назад</span>
+                    </button>
+                    
+                    <div class="slide-indicators">
+                        <div class="indicator active" onclick="goToSlide(0)"></div>
+                        <div class="indicator" onclick="goToSlide(1)"></div>
+                        <div class="indicator" onclick="goToSlide(2)"></div>
+                        <div class="indicator" onclick="goToSlide(3)"></div>
+                        <div class="indicator" onclick="goToSlide(4)"></div>
+                    </div>
+                    
+                    <button class="nav-button next" onclick="nextSlide()">
+                        <span>Далее ▶</span>
+                    </button>
+                </div>
+                
+                <div class="lecture-footer">
+                    <button class="start-game-button" onclick="startGame()" style="display: none;">
+                        <span>Теперь идём в сад!</span>
+                    </button>
+                </div>
+                
+                <div class="sovunya-teacher">
+                    
+                    <img class="teacher-avatar" src="ФотоСовунья/Совунья.png"/>
+                    <div class="teacher-speech">
+                        <p id="teacherText">Теперь ты знаешь основы садоводства! Готова применить знания на практике?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Мини игра "Ухаживание на цветами" -->
+        <div class="game-screen" id="gardenScreen" style="display: none;">
+            <div class="garden-content">
+                <div class="game-header-section">
+                    <h2>Ухаживаем за садом с Совуньей!</h2>
+                    <p>Помоги Совунье вырастить красивые цветы! Выполняй нужные действия для каждого растения!</p>
+                </div>
+                
+                <div class="garden-area">
+                    <div class="garden-tools">
+                        <div class="tool active" data-tool="water">
+                            <img class="tool-icon" src="ФотоСовунья/Капля.png"/>
+                            <span>Полив</span>
+                        </div>
+                        <div class="tool" data-tool="fertilizer">
+                            <img class="tool-icon" src="ФотоСовунья/Удобрение.png"/>
+                            <span>Удобрение</span>
+                        </div>
+                        <div class="tool" data-tool="scissors">
+                            <img class="tool-icon" src="ФотоСовунья/Ножницы.png"/>
+                            <span>Обрезка</span>
+                        </div>
+                        <div class="tool" data-tool="rake">
+                            <img class="tool-icon" src="ФотоСовунья/Перчатки.png"/>
+                            <span>Прополка</span>
+                        </div>
+                    </div>
+                    
+                    <div class="garden-bed">
+                        <div class="plant" data-need="water" data-stage="1" style="top: 20%; left: 15%;">
+                            <div class="plant-stage">🌱</div>
+                            <img class="plant-status" src="ФотоСовунья/Капля.png"/>
+                        </div>
+                        <div class="plant" data-need="fertilizer" data-stage="2" style="top: 30%; left: 70%;">
+                            <div class="plant-stage">🌿</div>
+                            <img class="plant-status" src="ФотоСовунья/Удобрение.png"/>
+                        </div>
+                        <div class="plant" data-need="scissors" data-stage="3" style="top: 40%; left: 40%;">
+                            <div class="plant-stage">🌸</div>
+                            <img class="plant-status" src="ФотоСовунья/Ножницы.png"/>
+                        </div>
+                        <div class="plant" data-need="rake" data-stage="2" style="top: 50%; left: 85%;">
+                            <div class="plant-stage">🌿</div>
+                            <img class="plant-status" src="ФотоСовунья/Перчатки.png"/>
+                        </div>
+                        <div class="plant" data-need="water" data-stage="1" style="top: 60%; left: 25%;">
+                            <div class="plant-stage">🌱</div>
+                            <img class="plant-status" src="ФотоСовунья/Капля.png"/>
+                        </div>
+                        <div class="plant" data-need="fertilizer" data-stage="3" style="top: 60%; left: 55%;">
+                            <div class="plant-stage">🌸</div>
+                            <img class="plant-status" src="ФотоСовунья/Удобрение.png"/>
+                        </div>
+                        
+                        <!-- Садовые украшения -->
+                        <img class="garden-decoration" src="ФотоСовунья/Бабочка.png" style="top: 10%; left: 50%;"/>
+                        <img class="garden-decoration" src="ФотоСовунья/Пчела.png" style="top: 75%; left: 70%;"/>
+                        <img class="garden-decoration" src="ФотоСовунья/Радуга.png" style="top: 40%; left: 5%;"/>
+                    </div>
+                </div>
+                
+                <div class="garden-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="gardenProgress"></div>
+                    </div>
+                    <p>Растений ухожено: <span id="gardenPercentage">0%</span></p>
+                </div>
+                
+                <div class="sovunya-helper">
+                    <img class="helper-avatar" src="ФотоСовунья/Совунья.png"/>
+                    <div class="helper-speech">
+                        <p id="gardenHelperText">Выбери нужный инструмент и нажми на растение, которому он требуется!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран викторины -->
+        <div class="game-screen" id="quizScreen" style="display: none;">
+            <div class="quiz-content">
+                <div class="quiz-header">
+                    <h2 id="quizTitle">Вопросы о садоводстве</h2>
+                    <div class="quiz-progress">
+                        <span>Вопрос <span id="currentQuestion">1</span> из <span id="totalQuestions">5</span></span>
+                        <div class="progress-dots" id="progressDots"></div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question">
+                    <div class="question-image" id="questionImage">
+                        <img class="plant-icon" src="ФотоСовунья/Цветок.png"/>
+                    </div>
+                    <h3 id="questionText">Что нужно этому растению?</h3>
+                </div>
+                
+                <div class="quiz-answers" id="quizAnswers">
+                    <!-- Answers will be populated by JavaScript -->
+                </div>
+                
+                <div class="sovunya-helper">
+                    <img class="helper-avatar" src="ФотоСовунья/Совунья.png"/>
+                    <div class="helper-speech">
+                        <p id="helperText">Подумай внимательно! Вспомни урок о садоводстве!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="game-screen" id="resultsScreen" style="display: none;">
+            <div class="results-content">
+                <div class="results-header">
+                    <div class="medal-animation">
+                        <div class="medal" id="finalMedal">🏆</div>
+                    </div>
+                    <h2 id="resultsTitle">Превосходная работа!</h2>
+                    <p id="resultsDescription">Ты помогла Совунье вырастить прекрасный сад! Твои цветы цветут!</p>
+                </div>
+                
+                <div class="results-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-value" id="finalScore">15</div>
+                        <div class="stat-label">Баллов заработано</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="correctAnswers">4/5</div>
+                        <div class="stat-label">Правильных ответов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🌸</div>
+                        <div class="stat-value" id="plantsGrown">100%</div>
+                        <div class="stat-label">Растений выращено</div>
+                    </div>
+                </div>
+                
+                <div class="sovunya-congratulations">
+                    <img class="sovunya-avatar" src="ФотоСовунья/Совунья.png"/>
+                    <div class="congratulation-speech">
+                        <p>Браво! Ты настоящий садовод! Благодаря твоей заботе наш сад стал волшебным!</p>
+                    </div>
+                </div>
+                
+                <div class="results-actions">
+                    <button class="action-button primary" onclick="playAgain()">
+                        <span>Играть снова</span>
+                    </button>
+                    <button class="action-button secondary" onclick="goToNextAdventure()">
+                        <span>Следующее приключение</span>
+                    </button>
+                </div>
+                
+                <div class="fun-facts">
+                    <h4>Интересные факты о растениях:</h4>
+                    <div class="fact-carousel" id="factCarousel">
+                        <div class="fact-item active">
+                            <div class="fact-icon">🌻</div>
+                            <p>Подсолнухи могут вырастать до 4 метров в высоту!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon">🌹</div>
+                            <p>Роза - символ любви, а её аромат успокаивает нервы!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon">🌳</div>
+                            <p>Одно дерево за день производит кислород для двух человек!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon">🌱</div>
+                            <p>Семена некоторых растений могут прорасти через 100 лет!</p>
+                        </div>
+                    </div>
+                    <div class="fact-navigation">
+                        <button onclick="previousFact()">◀</button>
+                        <div class="fact-dots"></div>
+                        <button onclick="nextFact()">▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="ИграССовуньей.js"></script>
+</body>
+</html>
