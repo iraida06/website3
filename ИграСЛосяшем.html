@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лесные приключения с Лосяшем - Эко-викторина</title>
+    <link rel="stylesheet" href="ИграСЛосяшем.css">
+    <script src="ИграСЛосяшем.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Заголовок игры -->
+        <header class="game-header">
+            <div class="header-content">
+                <!-- Кнопка "Вернуться на главную" -->
+                <button class="backHomeBtn" onclick="location.href='../ГлавнаяОр/ГлавнаяОр.html'">
+                    <img src="ФотоЛосяш/Иконка.png" alt="Иконка" class="backIcon"/>Вернуться <br> на главную
+                    </button>
+                <div class="brand">
+                    <img src="ФотоЛосяш/Елка.png" alt="Елка" class="brand-icon"/>
+                    <div class="brand-text">
+                        <h1>Лесные приключения</h1>
+                        <p>с Лосяшем</p>
+                    </div>
+                </div>
+                <div class="score-board">
+                    <div class="score-item">
+                        <img src="ФотоЛосяш/Звезда.png" alt="Звезда" class="score-emoji"/>
+                        <span class="score-value" id="score">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Вступительный экран игры -->
+        <div class="game-screen" id="introScreen">
+            <div class="intro-content">
+                <div class="losyash-character">
+                    <img src="ФотоЛосяш/Лосяш.png" alt="Лосяш" class="character-avatar"/>
+                    <div class="character-speech">
+                        <p>Привет! Я Лосяш! Отправимся со мной в увлекательное путешествие по лесу? Мы поможем лесным животным и узнаем много интересного!</p>
+                        <div class="speech-tail"></div>
+                    </div>
+                </div>
+                <div class="intro-features">
+                    <div class="feature">
+                        <img src="ФотоЛосяш/Белка.png" alt="Белка" class="feature-icon1"/>
+                        <h3>Помогаем животным</h3>
+                        <p>Заботимся о лесных обитателях</p>
+                    </div>
+                    <div class="feature">
+                        <img src="ФотоЛосяш/Елка.png" alt="Елка" class="feature-icon2"/>
+                        <h3>Изучаем лес</h3>
+                        <p>Узнаем о деревьях и растениях</p>
+                    </div>
+                </div>
+                <button class="start-button" onclick="startLecture()">
+                    <span>Начать приключение!</span>
+                    <div class="button-leaves">
+                        <div class="leaf">🍃</div>
+                        <div class="leaf">🍂</div>
+                        <div class="leaf">🌿</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран лекции -->
+        <div class="game-screen" id="lectureScreen" style="display: none;">
+            <div class="lecture-content">
+                <div class="lecture-header">
+                    <h2>Урок от Лосяша: Мудрость леса!</h2>
+                    <p>Перед началом приключения давай узнаем удивительные тайны леса и его обитателей!</p>
+                </div>
+                
+                <div class="lecture-slides">
+                    <div class="slide active" id="slide1">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Лес - дом для множества существ</h3>
+                                <ul>
+                                    <li>В лесу живут тысячи видов животных</li>
+                                    <li>Птицы строят гнёзда на деревьях</li>
+                                    <li>Белки делают запасы на зиму</li>
+                                    <li>Ёжики спят в листьях</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide2">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Как люди могут навредить лесу?</h3>
+                                <ul>
+                                    <li>Оставляют мусор в лесу</li>
+                                    <li>Неосторожно обращаются с огнём</li>
+                                    <li>Вырубают слишком много деревьев</li>
+                                    <li>Шумят и пугают животных</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide3">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Удивительные лесные жители</h3>
+                                <ul>
+                                    <li>Медведи спят всю зиму в берлоге</li>
+                                    <li>Совы видят в темноте</li>
+                                    <li>Волки живут стаями</li>
+                                    <li>Еноты очень чистоплотны</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide4">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Как мы можем помочь лесу?</h3>
+                                <ul>
+                                    <li>Убирать мусор за собой</li>
+                                    <li>Сажать новые деревья</li>
+                                    <li>Подкармливать животных зимой</li>
+                                    <li>Строить домики для птиц</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lecture-navigation">
+                    <button class="nav-button prev" onclick="previousSlide()" disabled>
+                        <span>◀ Назад</span>
+                    </button>
+                    
+                    <div class="slide-indicators">
+                        <div class="indicator active" onclick="goToSlide(0)"></div>
+                        <div class="indicator" onclick="goToSlide(1)"></div>
+                        <div class="indicator" onclick="goToSlide(2)"></div>
+                        <div class="indicator" onclick="goToSlide(3)"></div>
+                    </div>
+                    
+                    <button class="nav-button next" onclick="nextSlide()">
+                        <span>Далее ▶</span>
+                    </button>
+                </div>
+                
+                <div class="lecture-footer">
+                    <button class="start-game-button" onclick="startGame()" style="display: none;">
+                        <span>Теперь давай помогать лесу!</span>
+                    </button>
+                </div>
+                
+                <div class="losyash-teacher">
+                    <img src="ФотоЛосяш/Лосяш.png" alt="Лосяш" class="teacher-avatar"/>
+                    <div class="teacher-speech">
+                        <p id="teacherText">Теперь ты знаешь, как важно беречь лес! Готов стать настоящим защитником природы?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Мини игра "Помощь животным" -->
+        <div class="game-screen" id="helpingScreen" style="display: none;">
+            <div class="helping-content">
+                <div class="game-header-section">
+                    <h2>Помогаем лесным друзьям!</h2>
+                    <p>Лесные животные нуждаются в нашей помощи! Помоги им найти еду, построить дома и убрать мусор!</p>
+                </div>
+                
+                <div class="forest-container">
+                    <div class="forest-scene">
+                        <!-- Голодные животные -->
+                        <div class="animal-need" data-need="food" style="top: 20%; left: 15%;">
+                            <img class="animal-icon" src="ФотоЛосяш/Белка.png"/>
+                            <img class="need-bubble" src="ФотоЛосяш/Орехи.png"/>
+
+                        </div>
+                        <div class="animal-need" data-need="food" style="top: 50%; left: 80%;">
+                            <img class="animal-icon" src="ФотоЛосяш/Заяц.png"/>
+                            <img class="need-bubble" src="ФотоЛосяш/Орехи.png"/>
+
+                        </div>
+                        <div class="animal-need" data-need="home" style="top: 40%; left: 40%;">
+                            <img class="animal-icon" src="ФотоЛосяш/Ёжик.png"/>
+                            <img class="need-bubble" src="ФотоЛосяш/Дом.png"/>
+
+                        </div>
+                        <div class="animal-need" data-need="home" style="top: 70%; left: 60%;">
+                            <img class="animal-icon" src="ФотоЛосяш/Лиса.png"/>
+                            <img class="need-bubble" src="ФотоЛосяш/Дом.png"/>
+
+                        </div>
+                        <div class="animal-need" data-need="home" style="top: 20%; left: 60%;">
+                            <img class="animal-icon" src="ФотоЛосяш/Сова.png"/>
+                            <img class="need-bubble" src="ФотоЛосяш/Дом.png"/>
+
+                        </div>
+                        <div class="animal-need" data-need="food" style="top: 60%; left: 20%;">
+                            <img class="animal-icon" src="ФотоЛосяш/Енот.png"/>
+                            <img class="need-bubble" src="ФотоЛосяш/Орехи.png"/>
+
+                        </div>
+                        
+                        <!-- Деревья на заднем плане  -->
+                        <img class="forest-tree" src="ФотоЛосяш/Дерево.png" style="position: relative; top: 20%; left: 80%;"/>
+                        <img class="forest-tree" src="ФотоЛосяш/Дерево.png" style="position: relative; top: 15%; left: 30%;"/>
+                        <img class="forest-tree" src="ФотоЛосяш/Дерево.png" style="position: relative; top: 50%; left: -5%;"/>
+                        <img class="forest-tree" src="ФотоЛосяш/Елка.png" style="position: relative; top: 70%; left: 15%;"/>
+                        <img class="forest-tree" src="ФотоЛосяш/Елка.png" style="position: relative; top: 50%; left: 30%;"/>
+                        <img class="forest-tree" src="ФотоЛосяш/Елка.png" style="position: relative; top: 80%; left: 45%;"/>
+                   </div>
+
+                    
+                    <div class="helping-tools">
+                        <div class="tool" data-tool="food">
+                            <img class="tool-icon" src="ФотоЛосяш/Орехи.png">
+                            <span>Корм</span>
+                        </div>
+                        <div class="tool active" data-tool="home">
+                            <img class="tool-icon" src="ФотоЛосяш/Дом.png">
+                            <span>Домик</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="helping-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="helpingProgress"></div>
+                    </div>
+                    <p>Животным помочь: <span id="helpingPercentage">0%</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран викторины -->
+        <div class="game-screen" id="quizScreen" style="display: none;">
+            <div class="quiz-content">
+                <div class="quiz-header">
+                    <h2 id="quizTitle">Вопрос о лесных обитателях</h2>
+                    <div class="quiz-progress">
+                        <span>Вопрос <span id="currentQuestion">1</span> из <span id="totalQuestions">5</span></span>
+                        <div class="progress-dots" id="progressDots"></div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question">
+                    <div class="question-image" id="questionImage">
+                        <img class="creature-icon" src="ФотоЛосяш/Белка.png"/>
+                    </div>
+                    <h3 id="questionText">Какое животное изображено на картинке?</h3>
+                </div>
+                
+                <div class="quiz-answers" id="quizAnswers">
+                    <!-- Answers will be populated by JavaScript -->
+                </div>
+                
+                <div class="losyash-helper">
+                    <img src="ФотоЛосяш/Лосяш.png" alt="Лосяш" class="helper-avatar"/>
+                    <div class="helper-speech">
+                        <p id="helperText">Подумай хорошенько! Я знаю, что ты знаешь правильный ответ!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран результатов -->
+        <div class="game-screen" id="resultsScreen" style="display: none;">
+            <div class="results-content">
+                <div class="results-header">
+                    <div class="medal-animation">
+                        <div class="medal" id="finalMedal">🏆</div>
+                        
+                    </div>
+                    <h2 id="resultsTitle">Отличная работа!</h2>
+                    <p id="resultsDescription">Ты помог лесным животным и узнал много нового о природе!</p>
+                </div>
+                
+                <div class="results-stats">
+                    <div class="stat-card">
+                        <img class="stat-icon" src="ФотоЛосяш/Звезда.png"/>
+                        <div class="stat-value" id="finalScore">15</div>
+                        <div class="stat-label">Баллов заработано</div>
+                    </div>
+                    <div class="stat-card">
+                        <img class="stat-icon" src="ФотоЛосяш/Мишень.png"/>
+                        <div class="stat-value" id="correctAnswers">4/5</div>
+                        <div class="stat-label">Правильных ответов</div>
+                    </div>
+                    <div class="stat-card">
+                        <img class="stat-icon" src="ФотоЛосяш/Белка.png"/>
+                        <div class="stat-value" id="animalsHelped">100%</div>
+                        <div class="stat-label">Животным помочь</div>
+                    </div>
+                </div>
+                
+                <div class="losyash-congratulations">
+                    <img src="ФотоЛосяш/Лосяш.png" alt="Лосяш" class="losyash-avatar"/>
+                    <div class="congratulation-speech">
+                        <p>Превосходно! Ты настоящий друг леса! Благодаря тебе все лесные жители счастливы и в безопасности!</p>
+                    </div>
+                </div>
+                
+                <div class="results-actions">
+                    <button class="action-button primary" onclick="playAgain()">
+                        <span>Играть снова</span>                    </button>
+                    <button class="action-button secondary" onclick="goToNextAdventure()">
+                        <span>Следующее приключение</span>                    </button>
+                </div>
+                
+                <div class="fun-facts">
+                    <h4>Интересные факты о лесе:</h4>
+                    <div class="fact-carousel" id="factCarousel">
+                        <div class="fact-item active">
+                            <div class="fact-icon"></div>
+                            <p>Леса производят 28% кислорода на Земле!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon"></div>
+                            <p>В лесах живёт 80% всех наземных животных!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon"></div>
+                            <p>Одно большое дерево может жить 500+ лет!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon"></div>
+                            <p>Белки забывают, где спрятали 74% своих запасов!</p>
+                        </div>
+                    </div>
+                    <div class="fact-navigation">
+                        <button onclick="previousFact()">◀</button>
+                        <div class="fact-dots"></div>
+                        <button onclick="nextFact()">▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="ИграСЛосяшем.js"></script>
+</body>
+</html>

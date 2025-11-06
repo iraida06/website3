@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Эко-приключения с Крошем - Учимся сортировать мусор</title>
+    <link rel="stylesheet" href="ИграСКрошем.css">
+    <script src="ИграСКрошем.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Заголовок игры -->
+        <header class="game-header">
+            <div class="header-content">
+                <!-- Кнопка "Вернуться на главную" -->
+                <button class="backHomeBtn" onclick="location.href='../ГлавнаяОр/ГлавнаяОр.html'">
+                    <img src="ФотоКрош/Иконка.png" alt="Иконка" class="backIcon"/>Вернуться <br> на главную
+                    </button>
+            
+                <div class="brand">
+                    <img class="brand-icon" src="ФотоКрош/Переработка.png" alt="Переработка"/>
+                    <div class="brand-text">
+                        <h1>Эко-приключения</h1>
+                        <p>с Крошем</p>
+                    </div>
+                </div>
+                <div class="score-board">
+                    <div class="score-item">
+                        <img class="score-emoji" src="ФотоКрош/Звезда.png" alt="Звезда"/>
+                        <span class="score-value" id="score">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Вступительный экран игры -->
+        <div class="game-screen" id="introScreen">
+            <div class="intro-content">
+                <div class="krosh-character">
+                    <img class="character-avatar" src="ФотоКрош/крош2.png" alt="Крош"/>
+                    <div class="character-speech">
+                        <p>Привет! Я Крош! Хочешь научиться правильно сортировать мусор и спасти нашу планету? Это очень важно для экологии!</p>
+                        <div class="speech-tail"></div>
+                    </div>
+                </div>
+                <div class="intro-features">
+                    <div class="feature">
+                        <img class="feature-icon1" src="ФотоКрош/Переработка.png" alt="Переработка"/>
+                        <h3>Сортируем мусор</h3>
+                        <p>Учимся правильно разделять отходы</p>
+                    </div>
+                    <div class="feature">
+                        <img class="feature-icon2" src="ФотоКрош/Расток.png" alt="Расток"/>
+                        <h3>Спасаем природу</h3>
+                        <p>Помогаем сохранить планету чистой</p>
+                    </div>
+
+                </div>
+                <button class="start-button" onclick="startLecture()">
+                    <span>Начать приключение!</span>
+                    <div class="button-sparkles">
+                        <div class="sparkle">✨</div>
+                        <div class="sparkle">⭐</div>
+                        <div class="sparkle">💫</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран лекции -->
+        <div class="game-screen" id="lectureScreen" style="display: none;">
+            <div class="lecture-content">
+                <div class="lecture-header">
+                    <h2>Урок от Кроша: Учимся сортировать мусор!</h2>
+                    <p>Перед началом приключения давай узнаем, как правильно сортировать отходы!</p>
+                </div>
+                
+                <div class="lecture-slides">
+                    <div class="slide active" id="slide1">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Почему важно сортировать мусор?</h3>
+                                <ul>
+                                    <li>Сохраняем природу для будущих поколений</li>
+                                    <li>Мусор превращается в новые полезные вещи</li>
+                                    <li>Уменьшаем загрязнение воздуха и воды</li>
+                                    <li>Защищаем животных и их дома</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide2">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Виды контейнеров для мусора</h3>
+                                <ul>
+                                    <li>Синий - для бумаги и картона</li>
+                                    <li>Жёлтый - для пластика и металла</li>
+                                    <li>Зелёный - для стекла</li>
+                                    <li>Коричневый - для органических отходов</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide3">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Что относится к бумажным отходам?</h3>
+                                <ul>
+                                    <li>Газеты и журналы</li>
+                                    <li>Картонные коробки</li>
+                                    <li>Старые книги и тетради</li>
+                                    <li>Картонные упаковки (но НЕ грязные салфетки)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide4">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Пластик и металл</h3>
+                                <ul>
+                                    <li>Пластиковые бутылки (предварительно промыть)</li>
+                                    <li>Металлические банки</li>
+                                    <li>Пластиковые стаканчики</li>
+                                    <li>Пластиковая посуда</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slide" id="slide5">
+                        <div class="slide-content">
+                            <div class="slide-image">
+                                <div class="slide-icon"></div>
+                            </div>
+                            <div class="slide-text">
+                                <h3>Органические отходы</h3>
+                                <ul>
+                                    <li>Остатки фруктов и овощей</li>
+                                    <li>Яичная скорлупа</li>
+                                    <li>Кофейная гуща и чайные пакетики</li>
+                                    <li>Увядшие цветы и листья</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lecture-navigation">
+                    <button class="nav-button prev" onclick="previousSlide()" disabled>
+                        <span>◀ Назад</span>
+                    </button>
+                    
+                    <div class="slide-indicators">
+                        <div class="indicator active" onclick="goToSlide(0)"></div>
+                        <div class="indicator" onclick="goToSlide(1)"></div>
+                        <div class="indicator" onclick="goToSlide(2)"></div>
+                        <div class="indicator" onclick="goToSlide(3)"></div>
+                        <div class="indicator" onclick="goToSlide(4)"></div>
+                    </div>
+                    
+                    <button class="nav-button next" onclick="nextSlide()">
+                        <span>Далее ▶</span>
+                    </button>
+                </div>
+                
+                <div class="lecture-footer">
+                    <button class="start-game-button" onclick="startGame()" style="display: none;">
+                        <span>Теперь давай практиковаться! 🚀</span>
+                    </button>
+                </div>
+                
+                <div class="krosh-teacher">
+                    <img class="teacher-avatar" src="ФотоКрош/крош2.png"/>
+                    <div class="teacher-speech">
+                        <p id="teacherText">Теперь ты знаешь основы сортировки мусора! Готов применить знания на практике?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Мини-игра «Сортировка мусора» -->
+        <div class="game-screen" id="sortingScreen" style="display: none;">
+            <div class="sorting-content">
+                <div class="game-header-section">
+                    <h2>Сортируем мусор с Крошем!</h2>
+                    <p>Помоги Крошу правильно рассортировать мусор! Перетаскивай предметы в нужные контейнеры!</p>
+                </div>
+                
+                <div class="sorting-area">
+                    <div class="trash-bins">
+                        <div class="bin" data-type="paper" id="paperBin">
+                            <img class="bin-lid" src="ФотоКрош/Синий круг.png"/>
+                            <div class="bin-body"></div>
+                            <div class="bin-label">Бумага</div>
+                        </div>
+                        <div class="bin" data-type="plastic" id="plasticBin">
+                            <img class="bin-lid" src="ФотоКрош/Жёлтый круг.png"/>
+                            <div class="bin-body"></div>
+                            <div class="bin-label">Пластик</div>
+                        </div>
+                        <div class="bin" data-type="glass" id="glassBin">
+                            <img class="bin-lid" src="ФотоКрош/Зелёный круг.png"/>
+                            <div class="bin-body"></div>
+                            <div class="bin-label">Стекло</div>
+                        </div>
+                        <div class="bin" data-type="organic" id="organicBin">
+                            <img class="bin-lid" src="ФотоКрош/Коричневый круг.png"/>
+                            <div class="bin-body"></div>
+                            <div class="bin-label">Органика</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trash-items" id="trashItems">
+                        <div class="trash-item" data-type="paper">
+                            <img class="item-icon" src="ФотоКрош/Газета.png"/>
+                            <div class="item-label">Газета</div>
+                        </div>
+                        <div class="trash-item" data-type="plastic">
+                            <img class="item-icon" src="ФотоКрош/стакан.png"/>
+                            <div class="item-label">Стаканчик</div>
+                        </div>
+                        <div class="trash-item" data-type="organic">
+                            <img class="item-icon" src="ФотоКрош/Банан.png"/>
+                            <div class="item-label">Банан</div>
+                        </div>
+                        <div class="trash-item" data-type="glass">
+                            <img class="item-icon" src="ФотоКрош/Банка.png"/>
+                            <div class="item-label">Стеклянная банка</div>
+                        </div>
+                        <div class="trash-item" data-type="paper">
+                            <img class="item-icon" src="ФотоКрош/Коробка.png"/>
+                            <div class="item-label">Коробка</div>
+                        </div>
+                        <div class="trash-item" data-type="plastic">
+                            <img class="item-icon" src="ФотоКрош/Тарелка.png"/>
+                            <div class="item-label">Одноразовая посуда</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sorting-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="sortingProgress"></div>
+                    </div>
+                    <p>Отсортировано: <span id="sortingPercentage">0%</span></p>
+                </div>
+                
+                <div class="krosh-helper">
+                    <img class="helper-avatar" src="ФотоКрош/крош2.png"/>
+                    <div class="helper-speech">
+                        <p id="sortingHelperText">Отлично! Перетаскивай предметы в правильные контейнеры!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран викторины -->
+        <div class="game-screen" id="quizScreen" style="display: none;">
+            <div class="quiz-content">
+                <div class="quiz-header">
+                    <h2 id="quizTitle">Вопрос об экологии</h2>
+                    <div class="quiz-progress">
+                        <span>Вопрос <span id="currentQuestion">1</span> из <span id="totalQuestions">5</span></span>
+                        <div class="progress-dots" id="progressDots"></div>
+                    </div>
+                </div>
+                
+                <div class="quiz-question">
+                    <div class="question-image" id="questionImage">
+                        <div class="item-icon"></div>
+                    </div>
+                    <h3 id="questionText">В какой контейнер нужно выбросить это?</h3>
+                </div>
+                
+                <div class="quiz-answers" id="quizAnswers">
+                    <!-- Ответы будут заполнены с помощью JavaScript -->
+                </div>
+                
+                <div class="krosh-helper">
+                    <img class="helper-avatar" src="ФотоКрош/крош2.png"/>
+                    <div class="helper-speech">
+                        <p id="helperText">Подумай хорошенько! Помни урок о сортировке мусора!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран результатов -->
+        <div class="game-screen" id="resultsScreen" style="display: none;">
+            <div class="results-content">
+                <div class="results-header">
+                    <div class="medal-animation">
+                        <div class="medal" id="finalMedal">🏆</div>
+                    </div>
+                    <h2 id="resultsTitle">Отличная работа!</h2>
+                    <p id="resultsDescription">Ты помог Крошу правильно отсортировать мусор и защитить природу!</p>
+                </div>
+                
+                <div class="results-stats">
+                    <div class="stat-card">
+                        <img class="stat-icon" src="ФотоКрош/Звезда.png"/>
+                        <div class="stat-value" id="finalScore">15</div>
+                        <div class="stat-label">Баллов заработано</div>
+                    </div>
+                    <div class="stat-card">
+                        <img class="stat-icon" src="ФотоКрош/Мишень.png"/>
+                        <div class="stat-value" id="correctAnswers">4/5</div>
+                        <div class="stat-label">Правильных ответов</div>
+                    </div>
+                    <div class="stat-card">
+                        <img class="stat-icon" src="ФотоКрош/Переработка3.png"/>
+                        <div class="stat-value" id="trashSorted">100%</div>
+                        <div class="stat-label">Мусора отсортировано</div>
+                    </div>
+                </div>
+                
+                <div class="krosh-congratulations">
+                    <img class="krosh-avatar" src="ФотоКрош/крош2.png"/>
+                    <div class="congratulation-speech">
+                        <p>Ура! Ты настоящий защитник экологии! Благодаря тебе наша планета станет чище!</p>
+                    </div>
+                </div>
+                
+                <div class="results-actions">
+                    <button class="action-button primary" onclick="playAgain()">
+                        <span>Играть снова</span>
+                    </button>
+                    <button class="action-button secondary" onclick="goToNextAdventure()">
+                        <span>Следующее приключение</span>
+                    </button>
+                </div>
+                
+                <div class="fun-facts">
+                    <h4>Интересные факты об экологии:</h4>
+                    <div class="fact-carousel" id="factCarousel">
+                        <div class="fact-item active">
+                            <div class="fact-icon"></div>
+                            <p>Из одной тонны макулатуры можно сделать 700 кг новой бумаги!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon"></div>
+                            <p>Переработка одной тонны бумаги спасает 17 деревьев!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon"></div>
+                            <p>Переработка алюминиевой банки экономит энергию на 3 часа работы телевизора!</p>
+                        </div>
+                        <div class="fact-item">
+                            <div class="fact-icon"></div>
+                            <p>Правильная сортировка мусора спасает жизни диких животных!</p>
+                        </div>
+                    </div>
+                    <div class="fact-navigation">
+                        <button onclick="previousFact()">◀</button>
+                        <div class="fact-dots"></div>
+                        <button onclick="nextFact()">▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="ИграСКрошем.js"></script>
+</body>
+</html>
