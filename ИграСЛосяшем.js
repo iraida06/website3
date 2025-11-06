@@ -604,7 +604,7 @@ function resetForestHelping() {
 }
 
 function goToNextAdventure() {
-    window.location.href = '../ГлавнаяОр/ГлавнаяОр.html#adventures';
+    window.location.href = 'index.html#adventures';
 }
 
 // Add CSS for popup animations
@@ -697,4 +697,5 @@ style.textContent = `
         object-fit: contain;
     }
 `;
+
 document.head.appendChild(style);
