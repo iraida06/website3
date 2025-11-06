@@ -571,7 +571,7 @@ function resetWaterCleaning() {
 
 function goToNextAdventure() {
     // Это перенаправит к следующему приключению на основном сайте
-    window.location.href = '../ГлавнаяОр/ГлавнаяОр.html#adventures';
+    window.location.href = 'index.html#adventures';
 }
 
 function goBack() {
@@ -618,4 +618,5 @@ style.textContent = `
         }
     }
 `;
+
 document.head.appendChild(style);
