@@ -5,4 +5,11 @@
     <lastmod>2025-11-12</lastmod> 
     <priority>1.0</priority>
   </url>
+
+  <url>
+    <loc>https://iraida06.github.io/website3/index.html</loc>
+    <lastmod>2025-11-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
