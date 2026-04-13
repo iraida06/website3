@@ -4,11 +4,80 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="ГлавнаяОр.css" />
-<title>Приключения со Смешриками</title>
-<meta name="description" content="Здесь вы найдете информацию о моих проектах, навыках в веб-разработке и сможете со мной связаться.">
-<meta name="google-site-verification" content="auJnphUEJEnEeyKK8qy_IkCQBnPXInwd4mZr57ZgUEo" />
+<title>Главная страница</title>
 </head>
 <body>
+  <!-- Профиль пользователя (верхний правый угол) -->
+<div class="user-profile" id="userProfile" style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 30px; padding: 8px 15px; display: none; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; cursor: pointer;">
+  <img id="userAvatar" src="" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+  <div>
+      <div id="userName" style="font-weight: bold; font-size: 14px;"></div>
+      <div id="userAge" style="font-size: 11px; color: #666;"></div>
+  </div>
+</div>
+
+<!-- Меню пользователя при клике -->
+<div id="userMenu" style="display: none; position: fixed; top: 130px; right: 20px; background: white; border-radius: 15px; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000;">
+  <button onclick="logout()" style="background: none; border: none; padding: 8px 15px; cursor: pointer; color: #c33; width: 100%;">🚪 Выйти</button>
+</div>
+
+<script>
+// Проверка авторизации при загрузке главной страницы
+function checkAuth() {
+  const currentUser = localStorage.getItem('currentUser');
+  if (!currentUser) {
+      // Нет пользователя - отправляем на страницу входа
+      window.location.href = 'auth.html';
+  } else {
+      // Пользователь есть - показываем его данные
+      const user = JSON.parse(currentUser);
+      const avatarImg = document.getElementById('userAvatar');
+      const userNameSpan = document.getElementById('userName');
+      const userAgeSpan = document.getElementById('userAge');
+      const userProfile = document.getElementById('userProfile');
+      
+      if (avatarImg) avatarImg.src = user.avatar;
+      if (userNameSpan) userNameSpan.textContent = user.username;
+      if (userAgeSpan) userAgeSpan.textContent = user.age + ' лет';
+      if (userProfile) userProfile.style.display = 'flex';
+  }
+}
+
+// Показать/скрыть меню пользователя
+function showUserMenu() {
+  const menu = document.getElementById('userMenu');
+  if (menu) {
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+// Выход из аккаунта
+function logout() {
+  localStorage.removeItem('currentUser');
+  window.location.href = 'auth.html';
+}
+
+// Закрыть меню при клике вне его
+document.addEventListener('click', function(event) {
+  const menu = document.getElementById('userMenu');
+  const profile = document.getElementById('userProfile');
+  if (menu && profile && !profile.contains(event.target) && !menu.contains(event.target)) {
+      menu.style.display = 'none';
+  }
+});
+
+// Запускаем проверку при загрузке страницы
+document.addEventListener('DOMContentLoaded', checkAuth);
+
+// Добавляем обработчик клика на профиль
+document.addEventListener('DOMContentLoaded', function() {
+  const profile = document.getElementById('userProfile');
+  if (profile) {
+      profile.onclick = showUserMenu;
+  }
+});
+</script>
+
 <div class="menu">
     <img src="ФотоГл/Иконка.png" alt="Иконка" class="Icon1" />
     <div class="brand-text">
@@ -196,7 +265,7 @@
         <h1 class="textPin2">с Пином</h1>
       </div>
       <h1 class="textPin3">Очищаем водоёмы и изучаем водных обитателей</h1>
-      <button onclick="location.href='./ИграСПином.html'" class="buttonPin">Начать приключение!</button>
+      <button onclick="location.href='../ИграСПином/ИграСПином.html'" class="buttonPin">Начать приключение!</button>
     </div>
     <!-- Приключение с Лосяшем -->
      <div class="forestAdventures">
@@ -205,7 +274,7 @@
         <div class="textLosysh2">с Лосяшем</div>
       </div>
       <h1 class="textLosysh3">Изучаем животных леса и учимся им помогать</h1>
-      <button onclick="location.href='./ИграСЛосяшем.html'" class="buttonLosysh">Начать приключение!</button>
+      <button onclick="location.href='../ИграСЛосяшем/ИграСЛосяшем.html'" class="buttonLosysh">Начать приключение!</button>
      </div>
      <!-- Приключение с Крошем -->
       <div class="ecoAdventures">
@@ -214,7 +283,7 @@
           <h1 class="textKrosh2">с Крошем</h1>
         </div>
         <h1 class="textKrosh3">Учимся сортировать мусор</h1>
-        <button onclick="location.href='./ИграСКрошем.html'" class="buttonKrosh">Начать приключение!</button>
+        <button onclick="location.href='../ИграСКрошем/ИграСКрошем.html'" class="buttonKrosh">Начать приключение!</button>
       </div>
       <!-- Приключение с Совуньей-->
        <div class="gardenAdventures">
@@ -223,7 +292,7 @@
           <h1 class="textSovunya2">с Совуньей</h1>
         </div>
         <h1 class="textSovunya3">Вырашиваем цветы</h1>
-        <button onclick="location.href='./ИграССовуньей.html'" class="ButtonSovunya">Начать приключение!</button>
+        <button onclick="location.href='../ИграССовуньей/ИграССовуньей.html'" class="ButtonSovunya">Начать приключение!</button>
        </div>
 </div>
 
@@ -291,11 +360,3 @@
 </footer>
 </body>
 </html>
-
-
-
-
-
-
-
-
