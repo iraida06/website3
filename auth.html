@@ -441,7 +441,7 @@ authDomain: "ecoadventures-1c201.firebaseapp.com",
                 showSuccess('✅ Регистрация прошла успешно! Добро пожаловать, ' + username + '!');
                 
                 setTimeout(() => {
-                    window.location.href = 'ГлавнаяОр.html';
+                    window.location.href = 'index.html';
                 }, 1500);
                 
             } catch (error) {
@@ -492,7 +492,7 @@ authDomain: "ecoadventures-1c201.firebaseapp.com",
                 showSuccess('✅ Добро пожаловать, ' + username + '!');
                 
                 setTimeout(() => {
-                    window.location.href = 'ГлавнаяОр.html';
+                    window.location.href = 'index.html';
                 }, 1000);
                 
             } catch (error) {
@@ -528,7 +528,7 @@ authDomain: "ecoadventures-1c201.firebaseapp.com",
                     const userDoc = await db.collection('users').doc(user.id).get();
                     if (userDoc.exists) {
                         // Уже есть пользователь - отправляем на главную
-                        window.location.href = 'ГлавнаяОр.html';
+                        window.location.href = 'index.html';
                     } else {
                         // Пользователь не найден в БД, удаляем из localStorage
                         localStorage.removeItem('currentUser');
