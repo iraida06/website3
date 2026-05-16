@@ -9,45 +9,46 @@ let gameState = {
     correctAnswers: 0,
     animalsHelped: 0,
     totalAnimals: 6,
-    currentSlide: 0
+    currentSlide: 0,
+    isAnswerLocked: false
 };
 
-// Quiz questions data
+// Quiz questions data with helpers
 const quizQuestions = [
     {
         question: "Какое животное делает запасы орехов на зиму?",
-        image: "ФотоЛосяш/Белка.png",
+        image: "ФотоЛосяш/Орехи.png",
         answers: ["Белка", "Медведь", "Лиса", "Волк"],
         correct: 0,
-        helper: "Белки запасают орехи и грибы на зиму!"
+        helper: "✅ Правильно! Белки запасают орехи и грибы на зиму!"
     },
     {
         question: "Что едят медведи?",
         image: "ФотоЛосяш/Медведь.png",
         answers: ["Только мясо", "Только растения", "Всё подряд", "Только рыбу"],
         correct: 2,
-        helper: "Медведи всеядные! Они едят ягоды, рыбу, мёд и многое другое."
+        helper: "✅ Верно! Медведи всеядные! Они едят ягоды, рыбу, мёд и многое другое."
     },
     {
         question: "Кто строит гнёзда на деревьях?",
-        image: "ФотоЛосяш/Птица.png",
+        image: "ФотоЛосяш/Гнездо.png",
         answers: ["Медведи", "Птицы", "Еноты", "Лисы"],
         correct: 1,
-        helper: "Птицы вьют гнёзда на ветках деревьев!"
+        helper: "✅ Отлично! Птицы вьют гнёзда на ветках деревьев!"
     },
     {
         question: "Когда совы наиболее активны?",
         image: "ФотоЛосяш/Сова.png",
         answers: ["Утром", "Днём", "Вечером", "Ночью"],
         correct: 3,
-        helper: "Совы - ночные хищники с отличным зрением в темноте!"
+        helper: "✅ Правильно! Совы - ночные хищники с отличным зрением в темноте!"
     },
     {
         question: "Что НЕЛЬЗЯ делать в лесу?",
         image: "ФотоЛосяш/Елка.png",
         answers: ["Собирать грибы", "Наблюдать за птицами", "Оставлять мусор", "Слушать звуки природы"],
         correct: 2,
-        helper: "Мусор вредит животным и загрязняет природу!"
+        helper: "✅ Верно! Мусор вредит животным и загрязняет природу!"
     }
 ];
 
@@ -80,31 +81,103 @@ const funFacts = [
 ];
 
 let currentFactIndex = 0;
+let factInterval = null;
+let gameCompleted = false;
 
-// Initialize game
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Игра загружается...');
-    initializeGame();
-    setupEventListeners();
-});
+// ========== ИНСТРУКЦИЯ (СТРОГО ПО ЦЕНТРУ) ==========
+function showInstruction() {
+    console.log('Показываем инструкцию...');
+    
+    const oldInstruction = document.getElementById('gameInstruction');
+    const oldOverlay = document.getElementById('instructionOverlay');
+    if (oldInstruction) oldInstruction.remove();
+    if (oldOverlay) oldOverlay.remove();
 
+    const overlay = document.createElement('div');
+    overlay.id = 'instructionOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 1999;
+        backdrop-filter: blur(5px);
+    `;
+
+    const instructionHTML = `
+        <div id="gameInstruction" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 30px; padding: 25px; 
+            max-width: 400px; width: 90%; z-index: 2000; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+            border: 2px solid #f59e0b; text-align: center;">
+            <div style="font-size: 50px; margin-bottom: 10px;">🦌</div>
+            <h2 style="color: #f59e0b; margin-bottom: 15px;">Как играть?</h2>
+            <div style="color: white; text-align: left; margin-bottom: 20px;">
+                <p style="margin: 10px 0;">📖 <strong>Шаг 1:</strong> Посмотри обучающий урок о лесе</p>
+                <p style="margin: 10px 0;">🦊 <strong>Шаг 2:</strong> Помоги лесным животным (выбери инструмент, потом животное)</p>
+                <p style="margin: 10px 0;">❓ <strong>Шаг 3:</strong> Ответь на вопросы викторины</p>
+                <p style="margin: 10px 0;">⭐ <strong>Шаг 4:</strong> Получи награду эко-героя!</p>
+                <hr style="margin: 15px 0; border-color: #f59e0b;">
+                <p style="margin: 10px 0; color: #f59e0b;">💡 Совет: Сначала выбери инструмент, потом нажми на картинку животного!</p>
+            </div>
+            <button onclick="closeInstruction()" style="background: #f59e0b; border: none; padding: 12px 30px; 
+                border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; color: #1e293b;">
+                Начать приключение! ✨
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.insertAdjacentHTML('beforeend', instructionHTML);
+}
+
+function closeInstruction() {
+    console.log('Закрываем инструкцию...');
+    const instruction = document.getElementById('gameInstruction');
+    const overlay = document.getElementById('instructionOverlay');
+    if (instruction) instruction.remove();
+    if (overlay) overlay.remove();
+}
+
+// ========== ОСНОВНЫЕ ФУНКЦИИ ==========
 function initializeGame() {
+    console.log('Инициализация игры...');
+    gameCompleted = false;
     updateScore();
-    setupForestHelping();
+    setupEventListeners();
+    updateLectureDisplay();
+    updateHelpingProgress();
     setupQuiz();
     setupFactCarousel();
 }
 
+function updateScore() {
+    const scoreElement = document.getElementById('score');
+    if (scoreElement) {
+        scoreElement.textContent = gameState.score;
+    }
+}
 function setupEventListeners() {
-    // Animal helping listeners
     document.querySelectorAll('.animal-need').forEach(animal => {
+        animal.removeEventListener('click', helpAnimal);
         animal.addEventListener('click', helpAnimal);
     });
-
-    // Tool selection listeners
+    
     document.querySelectorAll('.tool').forEach(tool => {
+        tool.removeEventListener('click', selectTool);
         tool.addEventListener('click', selectTool);
     });
+}
+
+function showScreen(screenId) {
+    document.querySelectorAll('.game-screen').forEach(screen => {
+        screen.style.display = 'none';
+    });
+    const screenElement = document.getElementById(screenId);
+    if (screenElement) {
+        screenElement.style.display = 'flex';
+    }
 }
 
 function startLecture() {
@@ -117,27 +190,12 @@ function startLecture() {
 function startGame() {
     showScreen('helpingScreen');
     gameState.currentScreen = 'helping';
+    document.querySelectorAll('.tool').forEach(t => t.classList.remove('active'));
+    const firstTool = document.querySelector('.tool');
+    if (firstTool) firstTool.classList.add('active');
 }
 
-function showScreen(screenId) {
-    console.log('Переход к экрану:', screenId);
-    document.querySelectorAll('.game-screen').forEach(screen => {
-        screen.style.display = 'none';
-    });
-    const screenElement = document.getElementById(screenId);
-    if (screenElement) {
-        screenElement.style.display = 'flex';
-    }
-}
-
-function updateScore() {
-    const scoreElement = document.getElementById('score');
-    if (scoreElement) {
-        scoreElement.textContent = gameState.score;
-    }
-}
-
-// Lecture functions
+// ========== ФУНКЦИИ ЛЕКЦИИ ==========
 function updateLectureDisplay() {
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
@@ -145,23 +203,24 @@ function updateLectureDisplay() {
     const nextButton = document.querySelector('.nav-button.next');
     const startGameButton = document.querySelector('.start-game-button');
     
-    // Update slides
     slides.forEach((slide, index) => {
-        slide.classList.remove('active', 'prev');
+        slide.classList.remove('active');
         if (index === gameState.currentSlide) {
             slide.classList.add('active');
         }
     });
     
-    // Update indicators
     indicators.forEach((indicator, index) => {
         indicator.classList.toggle('active', index === gameState.currentSlide);
     });
     
-    // Update navigation buttons
     if (prevButton) prevButton.disabled = gameState.currentSlide === 0;
-    if (nextButton) nextButton.style.display = gameState.currentSlide === slides.length - 1 ? 'none' : 'inline-block';
-    if (startGameButton) startGameButton.style.display = gameState.currentSlide === slides.length - 1 ? 'inline-block' : 'none';
+    if (nextButton) {
+        nextButton.style.display = gameState.currentSlide === slides.length - 1 ? 'none' : 'inline-block';
+    }
+    if (startGameButton) {
+        startGameButton.style.display = gameState.currentSlide === slides.length - 1 ? 'inline-block' : 'none';
+    }
 }
 
 function nextSlide() {
@@ -184,60 +243,84 @@ function goToSlide(slideIndex) {
     updateLectureDisplay();
 }
 
-// Forest helping game
-function setupForestHelping() {
-    updateHelpingProgress();
-}
-
+// ========== ИГРА "ПОМОЩЬ ЖИВОТНЫМ" ==========
 function selectTool(event) {
     document.querySelectorAll('.tool').forEach(tool => {
         tool.classList.remove('active');
     });
     event.currentTarget.classList.add('active');
+    
+    const teacherSpeech = document.querySelector('.losyash-teacher .teacher-speech p');
+    if (teacherSpeech) {
+        teacherSpeech.innerHTML = '🔧 Инструмент выбран! Теперь нажми на животное!';
+        setTimeout(() => {
+            if (teacherSpeech.innerHTML === '🔧 Инструмент выбран! Теперь нажми на животное!') {
+                teacherSpeech.innerHTML = '🦌 Выбери инструмент, затем нажми на животное!';
+            }
+        }, 2000);
+    }
 }
 
 function helpAnimal(event) {
     const animalElement = event.currentTarget;
     const animalNeed = animalElement.dataset.need;
-    const activeTool = document.querySelector('.tool.active').dataset.tool;
+    const activeTool = document.querySelector('.tool.active');
+    const teacherSpeech = document.querySelector('.losyash-teacher .teacher-speech p');
     
-    // Check if correct tool is selected
-    if (animalNeed === activeTool) {
-        // Correct help!
+    if (!activeTool) {
+        if (teacherSpeech) {
+            teacherSpeech.innerHTML = '⚠️ Сначала выбери инструмент! Нажми на один из инструментов внизу!';
+        }
+        return;
+    }
+    
+    const toolType = activeTool.dataset.tool;
+    
+    if (animalElement.classList.contains('helped')) {
+        if (teacherSpeech) {
+            teacherSpeech.innerHTML = '✨ Этому животному уже помогли! Найди другое!';
+        }
+        return;
+    }
+    
+    if (animalNeed === toolType) {
         animalElement.classList.add('helped');
         gameState.animalsHelped++;
-        gameState.score += 8;
+        gameState.score += 5;
         
         updateScore();
         updateHelpingProgress();
         
-        // Remove animal after animation
+        if (teacherSpeech) {
+            teacherSpeech.innerHTML = '🎉 Отлично! Ты помог животному! +5 очков!';
+        }
+        
+        showScorePopup(event.clientX, event.clientY, '+5');
+        
         setTimeout(() => {
-            animalElement.remove();
-            checkAllAnimalsHelped();
-        }, 800);
-        
-        // Add success popup
-        showScorePopup(event.clientX, event.clientY, '+8');
-        
+            animalElement.style.opacity = '0';
+            animalElement.style.transform = 'scale(0)';
+            animalElement.style.transition = 'all 0.3s';
+            setTimeout(() => {
+                animalElement.remove();
+                checkAllAnimalsHelped();
+            }, 300);
+        }, 300);
     } else {
-        // Wrong tool - show gentle feedback
-        animalElement.style.animation = 'none';
-        setTimeout(() => {
-            animalElement.style.animation = '';
-        }, 100);
-        
-        showFeedbackPopup(event.clientX, event.clientY, 'Попробуй другой инструмент! 🤔');
+        if (teacherSpeech) {
+            teacherSpeech.innerHTML = '😔 Неправильный инструмент! Посмотри, что просит животное!';
+        }
+        showFeedbackPopup(event.clientX, event.clientY, 'Не тот инструмент! 🤔');
     }
 }
 
 function checkAllAnimalsHelped() {
-    const remainingAnimals = document.querySelectorAll('.animal-need').length;
+    const remainingAnimals = document.querySelectorAll('.animal-need:not(.helped)').length;
     console.log('Осталось животных:', remainingAnimals);
-    if (remainingAnimals === 0) {
+    if (remainingAnimals === 0 && !gameCompleted) {
         setTimeout(() => {
             completeForestHelping();
-        }, 1000);
+        }, 500);
     }
 }
 
@@ -251,28 +334,35 @@ function updateHelpingProgress() {
 }
 
 function completeForestHelping() {
-    console.log('Все животные помогли! Переход к викторине...');
-    // Add bonus for completing helping
-    gameState.score += 15;
+    // Проверяем, не был ли уже добавлен бонус
+    if (gameState.bonusAdded) {
+        console.log('Бонус уже был добавлен, пропускаем');
+        return;
+    }
+    
+    console.log('Все животные помогли! Добавляем бонус...');
+    gameState.bonusAdded = true;
+    gameState.score += 20;
     updateScore();
     
-    showScorePopup(window.innerWidth / 2, window.innerHeight / 2, '+15 Бонус за доброту!');
+    showScorePopup(window.innerWidth / 2, window.innerHeight / 2, '+20 Бонус!');
     
-    // Переход к викторине через 2 секунды
     setTimeout(() => {
         startQuiz();
     }, 2000);
 }
 
-// Quiz game
+// ========== ВИКТОРИНА ==========
 function setupQuiz() {
     createProgressDots();
 }
 
 function startQuiz() {
     showScreen('quizScreen');
-    gameState.currentScreen='quiz';
-    gameState.currentQuestion=0;
+    gameState.currentScreen = 'quiz';
+    gameState.currentQuestion = 0;
+    gameState.correctAnswers = 0;
+    gameState.isAnswerLocked = false;
     showQuestion();
 }
 
@@ -291,32 +381,38 @@ function createProgressDots() {
 function showQuestion() {
     const q = quizQuestions[gameState.currentQuestion];
     
-    // Update question info
-    document.getElementById('currentQuestion').textContent = gameState.currentQuestion + 1;
-    document.getElementById('totalQuestions').textContent = quizQuestions.length;
-    document.getElementById('quizTitle').textContent = "Вопрос о лесных обитателях"; // Заголовок остается постоянным
-    document.getElementById('questionText').textContent = q.question; // А вот это меняет сам вопрос под картинкой
-    document.getElementById('helperText').textContent = q.helper;
-
-    // Update question image
-    const img = document.querySelector('#questionImage .creature-icon');
-    if (img && q.image) {
-        img.src = q.image;
-        img.alt = "Изображение животного";
+    const currentQSpan = document.getElementById('currentQuestion');
+    const totalQSpan = document.getElementById('totalQuestions');
+    const questionText = document.getElementById('questionText');
+    const helperText = document.getElementById('helperText');
+    const creatureIcon = document.querySelector('.creature-icon');
+    
+    if (currentQSpan) currentQSpan.textContent = gameState.currentQuestion + 1;
+    if (totalQSpan) totalQSpan.textContent = quizQuestions.length;
+    if (questionText) questionText.textContent = q.question;
+    if (helperText) {
+        helperText.innerHTML = "🤔 Подумай хорошенько! Выбери правильный ответ!";
+        helperText.style.color = '';
+    }
+    if (creatureIcon && q.image) {
+        creatureIcon.src = q.image;
     }
 
     const answersContainer = document.getElementById('quizAnswers');
-    answersContainer.innerHTML = '';
-    
-    q.answers.forEach((ans, idx) => {
-        const div = document.createElement('div');
-        div.className = 'answer-option';
-        div.textContent = ans;
-        div.addEventListener('click', () => selectAnswer(idx));
-        answersContainer.appendChild(div);
-    });
+    if (answersContainer) {
+        answersContainer.innerHTML = '';
+        
+        q.answers.forEach((ans, idx) => {
+            const div = document.createElement('div');
+            div.className = 'answer-option';
+            div.textContent = ans;
+            div.addEventListener('click', () => selectAnswer(idx));
+            answersContainer.appendChild(div);
+        });
+    }
     
     updateProgressDots();
+    gameState.isAnswerLocked = false;
 }
 
 function updateProgressDots() {
@@ -328,21 +424,36 @@ function updateProgressDots() {
 }
 
 function selectAnswer(index) {
-    const q=quizQuestions[gameState.currentQuestion];
-    const options=document.querySelectorAll('.answer-option');
-    options.forEach(o=>o.style.pointerEvents='none');
+    if (gameState.isAnswerLocked) return;
+    gameState.isAnswerLocked = true;
+    
+    const q = quizQuestions[gameState.currentQuestion];
+    const options = document.querySelectorAll('.answer-option');
+    const helperText = document.getElementById('helperText');
+    
+    options.forEach(o => o.style.pointerEvents = 'none');
     options[index].classList.add('selected');
 
-    setTimeout(()=>{
+    setTimeout(() => {
         options[q.correct].classList.add('correct');
-        if(index!==q.correct) {
+        
+        if (index !== q.correct) {
             options[index].classList.add('incorrect');
+            if (helperText) {
+                helperText.innerHTML = `❌ Неправильно! ${q.helper}`;
+                helperText.style.color = '#ef4444';
+            }
         } else {
             gameState.correctAnswers++;
-            gameState.score+=12;
+            gameState.score += 10;
             updateScore();
-            showScorePopup(window.innerWidth/2,200,'+12');
+            showScorePopup(window.innerWidth/2, 200, '+10');
+            if (helperText) {
+                helperText.innerHTML = q.helper;
+                helperText.style.color = '#22c55e';
+            }
         }
+        
         setTimeout(() => {
             nextQuestion();
         }, 2000);
@@ -358,40 +469,43 @@ function nextQuestion() {
     }
 }
 
-// Results screen
-function showResults() {
+// ========== ЭКРАН РЕЗУЛЬТАТОВ ==========
+async function showResults() {
+    if (gameCompleted) return;
+    gameCompleted = true;
+    
     showScreen('resultsScreen');
     gameState.currentScreen = 'results';
     
-    calculateFinalResults();
     displayResults();
     startFactCarousel();
-}
 
-function calculateFinalResults() {
-    // Calculate final score based on performance
-    const helpingBonus = gameState.animalsHelped === gameState.totalAnimals ? 12 : 0;
-    const perfectQuizBonus = gameState.correctAnswers === quizQuestions.length ? 18 : 0;
-    
-    gameState.score += helpingBonus + perfectQuizBonus;
-    updateScore();
+    if (typeof forceUpdateUserScore !== 'undefined') {
+        await forceUpdateUserScore('losyash', gameState.score);
+    }
 }
 
 function displayResults() {
-    // Update final stats
-    document.getElementById('finalScore').textContent = gameState.score;
-    document.getElementById('correctAnswers').textContent = `${gameState.correctAnswers}/${quizQuestions.length}`;
-    document.getElementById('animalsHelped').textContent = Math.round((gameState.animalsHelped / gameState.totalAnimals) * 100) + '%';
+    const finalScoreSpan = document.getElementById('finalScore');
+    const correctAnswersSpan = document.getElementById('correctAnswers');
+    const animalsHelpedSpan = document.getElementById('animalsHelped');
+    const medalDiv = document.getElementById('finalMedal');
+    const resultsTitle = document.getElementById('resultsTitle');
+    const resultsDesc = document.getElementById('resultsDescription');
     
-    // Determine medal and title based on performance
+    if (finalScoreSpan) finalScoreSpan.textContent = gameState.score;
+    if (correctAnswersSpan) correctAnswersSpan.textContent = `${gameState.correctAnswers}/${quizQuestions.length}`;
+    if (animalsHelpedSpan) animalsHelpedSpan.textContent = Math.round((gameState.animalsHelped / gameState.totalAnimals) * 100) + '%';
+    
     let medal = '🏆';
     let title = 'Отличная работа!';
     let description = 'Ты помог лесным животным и узнал много нового о природе!';
     
+    // Максимум 80 очков (6×5=30 + 5×10=50)
     if (gameState.score >= 80) {
         medal = '🥇';
         title = 'Настоящий лесной герой!';
-        description = 'Потрясающе! Ты спас всех лесных жителей и показал глубокие знания природы!';
+        description = 'Потрясающе! Ты спас всех лесных жителей и показал отличные знания!';
     } else if (gameState.score >= 50) {
         medal = '🥈';
         title = 'Отличный защитник леса!';
@@ -402,28 +516,21 @@ function displayResults() {
         description = 'Хорошо! Ты на правильном пути к тому, чтобы стать защитником леса!';
     }
     
-    document.getElementById('finalMedal').textContent = medal;
-    document.getElementById('resultsTitle').textContent = title;
-    document.getElementById('resultsDescription').textContent = description;
+    if (medalDiv) medalDiv.textContent = medal;
+    if (resultsTitle) resultsTitle.textContent = title;
+    if (resultsDesc) resultsDesc.textContent = description;
 }
 
-// Fun facts carousel - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// ========== КАРУСЕЛЬ ФАКТОВ ==========
 function setupFactCarousel() {
     const factCarousel = document.getElementById('factCarousel');
     const factDots = document.querySelector('.fact-dots');
     
-    if (!factCarousel || !factDots) {
-        console.log('Элементы карусели фактов не найдены');
-        return;
-    }
+    if (!factCarousel || !factDots) return;
     
-    // Clear existing content
     factCarousel.innerHTML = '';
     factDots.innerHTML = '';
     
-    console.log('Создание карусели с', funFacts.length, 'фактами');
-    
-    // Create fact items
     funFacts.forEach((fact, index) => {
         const factItem = document.createElement('div');
         factItem.className = 'fact-item';
@@ -436,44 +543,30 @@ function setupFactCarousel() {
         
         factCarousel.appendChild(factItem);
         
-        // Create dot
         const dot = document.createElement('div');
         dot.className = 'fact-dot';
         if (index === 0) dot.classList.add('active');
         dot.addEventListener('click', () => showFact(index));
         factDots.appendChild(dot);
     });
-    
-    console.log('Создано фактов:', document.querySelectorAll('.fact-item').length);
-    console.log('Создано точек:', document.querySelectorAll('.fact-dot').length);
 }
 
 function startFactCarousel() {
-    console.log('Запуск автоматической смены фактов');
-    // Auto-rotate facts every 6 seconds
-    setInterval(() => {
+    if (factInterval) clearInterval(factInterval);
+    factInterval = setInterval(() => {
         nextFact();
     }, 6000);
 }
 
 function showFact(index) {
-    console.log('Показ факта:', index);
     currentFactIndex = index;
     
     const factItems = document.querySelectorAll('.fact-item');
     const factDots = document.querySelectorAll('.fact-dot');
     
-    // Hide all facts
-    factItems.forEach(item => {
-        item.classList.remove('active');
+    factItems.forEach((item, i) => {
+        item.classList.toggle('active', i === index);
     });
-    
-    // Show current fact
-    if (factItems[index]) {
-        factItems[index].classList.add('active');
-    }
-    
-    // Update dots
     factDots.forEach((dot, i) => {
         dot.classList.toggle('active', i === index);
     });
@@ -489,8 +582,7 @@ function previousFact() {
     showFact(currentFactIndex);
 }
 
-
-// Utility functions
+// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function showScorePopup(x, y, text) {
     const popup = document.createElement('div');
     popup.textContent = text;
@@ -512,10 +604,7 @@ function showScorePopup(x, y, text) {
     `;
     
     document.body.appendChild(popup);
-    
-    setTimeout(() => {
-        popup.remove();
-    }, 2000);
+    setTimeout(() => popup.remove(), 2000);
 }
 
 function showFeedbackPopup(x, y, text) {
@@ -534,20 +623,16 @@ function showFeedbackPopup(x, y, text) {
         font-size: 1rem;
         z-index: 1000;
         pointer-events: none;
-        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4);
         animation: feedbackPopup 2s ease-out forwards;
     `;
     
     document.body.appendChild(popup);
-    
-    setTimeout(() => {
-        popup.remove();
-    }, 2000);
+    setTimeout(() => popup.remove(), 2000);
 }
 
-// Game actions - ИСПРАВЛЕННАЯ ФУНКЦИЯ resetForestHelping
+// ========== ИГРОВЫЕ ДЕЙСТВИЯ ==========
 function playAgain() {
-    // Reset game state
+    gameCompleted = false;
     gameState = {
         currentScreen: 'intro',
         score: 0,
@@ -556,146 +641,29 @@ function playAgain() {
         correctAnswers: 0,
         animalsHelped: 0,
         totalAnimals: 6,
-        currentSlide: 0
+        currentSlide: 0,
+        isAnswerLocked: false
     };
     
-    // Reset UI
     updateScore();
     showScreen('introScreen');
-    
-    // Reset forest helping
-    resetForestHelping();
+    location.reload();
 }
 
 function resetForestHelping() {
-    // Remove existing animals
-    document.querySelectorAll('.animal-need').forEach(animal => animal.remove());
-    
-    // Add new animals
-    const forestScene = document.querySelector('.forest-scene');
-    if (!forestScene) return;
-    
-    const animalNeeds = [
-        { need: 'food', animalImage: 'ФотоЛосяш/Белка.png', bubbleImage: 'ФотоЛосяш/Орехи.png', top: '20%', left: '15%' },
-        { need: 'food', animalImage: 'ФотоЛосяш/Заяц.png', bubbleImage: 'ФотоЛосяш/Орехи.png', top: '50%', left: '80%' },
-        { need: 'home', animalImage: 'ФотоЛосяш/Ёжик.png', bubbleImage: 'ФотоЛосяш/Дом.png', top: '40%', left: '40%' },
-        { need: 'home', animalImage: 'ФотоЛосяш/Лиса.png', bubbleImage: 'ФотоЛосяш/Дом.png', top: '70%', left: '60%' },
-        { need: 'home', animalImage: 'ФотоЛосяш/Сова.png', bubbleImage: 'ФотоЛосяш/Дом.png', top: '20%', left: '60%' },
-        { need: 'food', animalImage: 'ФотоЛосяш/Енот.png', bubbleImage: 'ФотоЛосяш/Орехи.png', top: '60%', left: '20%' }
-    ];
-    
-    animalNeeds.forEach(animal => {
-        const animalDiv = document.createElement('div');
-        animalDiv.className = 'animal-need';
-        animalDiv.dataset.need = animal.need;
-        animalDiv.style.top = animal.top;
-        animalDiv.style.left = animal.left;
-        animalDiv.innerHTML = `
-            <img class="animal-icon" src="${animal.animalImage}" alt="Животное"/>
-            <img class="need-bubble" src="${animal.bubbleImage}" alt="Потребность"/>
-        `;
-        animalDiv.addEventListener('click', helpAnimal);
-        forestScene.appendChild(animalDiv);
-    });
-    
-    // Reset progress
-    document.getElementById('helpingProgress').style.width = '0%';
-    document.getElementById('helpingPercentage').textContent = '0%';
+    gameState.animalsHelped = 0;
+    updateHelpingProgress();
 }
 
 function goToNextAdventure() {
     window.location.href = 'index.html#adventures';
 }
 
-// Add CSS for popup animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes scorePopup {
-        0% {
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 0;
-        }
-        20% {
-            transform: translate(-50%, -50%) scale(1.2);
-            opacity: 1;
-        }
-        80% {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-        }
-        100% {
-            transform: translate(-50%, -50%) scale(1) translateY(-50px);
-            opacity: 0;
-        }
-    }
-    
-    @keyframes feedbackPopup {
-        0% {
-            transform: translate(-50%, -50%) scale(0);
-            opacity: 0;
-        }
-        20% {
-            transform: translate(-50%, -50%) scale(1.1);
-            opacity: 1;
-        }
-        80% {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-        }
-        100% {
-            transform: translate(-50%, -50%) scale(0.9);
-            opacity: 0;
-        }
-    }
-    
-    .animal-need.helped {
-        animation: helpSuccess 0.8s ease-in-out forwards;
-    }
-    
-    @keyframes helpSuccess {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.3) rotate(360deg); }
-        100% { transform: scale(0) rotate(720deg); opacity: 0; }
-    }
-    
-    .answer-option {
-        transition: all 0.3s ease;
-    }
-    
-    .answer-option.selected {
-        background: rgba(59, 130, 246, 0.3) !important;
-    }
-    
-    .answer-option.correct {
-        background: rgba(16, 185, 129, 0.3) !important;
-        color: #065f46 !important;
-    }
-    
-    .answer-option.incorrect {
-        background: rgba(239, 68, 68, 0.3) !important;
-        color: #7f1d1d !important;
-    }
-    
-    /* Стили для изображений в фактах */
-    .fact-icon {
-        width: 60px !important;
-        height: 60px !important;
-        object-fit: contain;
-        border-radius: 12px;
-    }
-    
-    /* Стили для изображений животных */
-    .animal-icon {
-        width: 60px;
-        height: 60px;
-        object-fit: contain;
-    }
-    
-    .need-bubble {
-        width: 40px;
-        height: 40px;
-        object-fit: contain;
-    }
-`;
+// ========== ЗАПУСК ИГРЫ ==========
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM загружен!');
+    initializeGame();
+    showInstruction();
+});
 
-document.head.appendChild(style);
+console.log('Скрипт Forest Adventure загружен!');
