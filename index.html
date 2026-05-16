@@ -5,23 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="ГлавнаяОр.css" />
 <title>Главная страница</title>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="ГлавнаяОр.js"></script>
 </head>
 <body>
-  <!-- Профиль пользователя (верхний правый угол) -->
-<div class="user-profile" id="userProfile" style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 30px; padding: 8px 15px; display: none; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; cursor: pointer;">
-  <img id="userAvatar" src="" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%;">
-  <div>
-      <div id="userName" style="font-weight: bold; font-size: 14px;"></div>
-      <div id="userAge" style="font-size: 11px; color: #666;"></div>
-  </div>
-</div>
-
 <!-- Меню пользователя при клике -->
-<div id="userMenu" style="display: none; position: fixed; top: 130px; right: 20px; background: white; border-radius: 15px; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000;">
+<div id="userMenu" style="display: none; position: fixed; top: 130px; right: 50px; background: white; border-radius: 15px; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1000;">
   <button onclick="logout()" style="background: none; border: none; padding: 8px 15px; cursor: pointer; color: #c33; width: 100%;">🚪 Выйти</button>
 </div>
 
 <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCY2mFu6xUL70sZhQKWv_CnM5DzGhfiPvI",
+        authDomain: "ecoadventures-1c201.firebaseapp.com",
+        projectId: "ecoadventures-1c201",
+        storageBucket: "ecoadventures-1c201.firebasestorage.app",
+        messagingSenderId: "865358200859",
+        appId: "1:865358200859:web:62ec18608185782719b8be",
+        measurementId: "G-JS1JE6PJZW"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
 // Проверка авторизации при загрузке главной страницы
 function checkAuth() {
   const currentUser = localStorage.getItem('currentUser');
@@ -77,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
-
+  
 <div class="menu">
     <img src="ФотоГл/Иконка.png" alt="Иконка" class="Icon1" />
     <div class="brand-text">
@@ -88,66 +95,215 @@ document.addEventListener('DOMContentLoaded', function() {
       <a href="#about1" class="about1"> О нашей программе</a>
       <a href="#map" class="AdventureMap">Карта приключений</a>
       <a href="#adventures" class="Adventures">Приключения</a>
-      <a href="#parents" class="Parents">Для родителей</a>
+      <div class="Talantia">
+        <img src="ФотоГл/ЛоготипТалантии.png" alt="Талантия" class="photoTalantia" onerror="this.src='https://via.placeholder.com/40?text=T'">
+        <div class="linkTalantia">
+          <a href="https://talantiatver.ru/" target="_blank" class="TextLogotip">Талантия</a>
+          <span class="textTalantia">«Где каждый ребёнок — талант»</span>
+        </div>
+      </div>
     </div>
+      <!-- Профиль пользователя (верхний правый угол) -->
+    <div class="user-profile" id="userProfile" style="position: fixed; top: 2px; right: 50px; background: white; border-radius: 30px; padding: 8px 15px; display: none; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; cursor: pointer;">
+      <img id="userAvatar" src="" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+      <div>
+        <div id="userName" style="font-weight: bold; font-size: 14px;"></div>
+        <div id="userAge" style="font-size: 11px; color: #666;"></div>
+      </div>
+    </div>
+</div>
+  
+<!-- Блок с рейтингом -->
+<div class="rating-container">
+  <div class="rating-header">
+      <img src="ФотоГл/Медаль.png" alt="Медаль" class="rating-header-icon">
+      <h2 class="rating-header-title">Мои эко-достижения</h2>
+      <div class="total-score-badge">
+          <span class="total-score-icon">⭐</span>
+          <span class="total-score-value" id="totalScoreHeader">0</span>
+      </div>
   </div>
 
-  <!--Меню-->
-  <div class="Account">
-    <div class="Account-Pin">
-      <div class="Account-Content">
-        <img src="ФотоГл/пин.png" alt="Пин" class="AcFotoPin"/>
-        <h1 class="AcTextPin">Водные приключения с Пином</h1>
+  <div class="rating-cards">
+      <!-- Пин -->
+      <div class="rating-card">
+          <div class="card-avatar">
+              <img class="card-avatar-img1" src="ФотоГл/пин.png" alt="Пин">
+              <div class="card-status locked" id="pinStatus"></div>
+          </div>
+          <div class="card-info">
+              <h3>Водные приключения</h3>
+              <p>с Пином</p>
+          </div>
+          <div class="card-score">
+              <div class="score-circle">
+                  <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="45" class="circle-bg"/>
+                      <circle cx="50" cy="50" r="45" class="circle-fill" id="pinCircleFill"/>
+                  </svg>
+                  <div class="score-inner">
+                      <span class="score-number" id="pinPoints">0</span>
+                      <span class="score-max">/100</span>
+                  </div>
+              </div>
+          </div>
+          <div class="card-progress">
+              <div class="progress-bar-mini">
+                  <div class="progress-fill-mini" id="pinProgressFill"></div>
+              </div>
+              <div class="reward-badge" id="pinReward">🔒</div>
+          </div>
       </div>
-    </div>
-    <div class="Account-Losaysh">
-      <div class="Account-Content">
-        <img src="ФотоГл/Лосяш.png" alt="Лосяш" class="AcFotoLosyash" />
-        <h4 class="AcTextLosyash">Лесные приключения с Лосяшем</h4>
-      </div>
-    </div>
-    <div class="Account-Krosh">
-      <div class="Account-Content">
-        <img src="ФотоГл/крош2.png" alt="Крош" class="AcFotoKrosh" />
-        <h5 class="AcTextKrosh">Эко-приключения с Крошем</h5>
-      </div>
-    </div>
 
-    <div class="Account-Sovunya">
-      <div class="Account-Content">
-        <img src="ФотоГл/Совунья.png" alt="Совунья" class="AcFotoSovunya"/>
-        <h6 class="AcTextSovunya">Садовые приключения с Совуньей</h6>
+      <!-- Лосяш -->
+      <div class="rating-card">
+          <div class="card-avatar">
+              <img class="card-avatar-img2" src="ФотоГл/Лосяш.png" alt="Лосяш">
+              <div class="card-status locked" id="losyashStatus"></div>
+          </div>
+          <div class="card-info">
+              <h3>Лесные приключения</h3>
+              <p>с Лосяшем</p>
+          </div>
+          <div class="card-score">
+              <div class="score-circle">
+                  <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="45" class="circle-bg"/>
+                      <circle cx="50" cy="50" r="45" class="circle-fill" id="losyashCircleFill"/>
+                  </svg>
+                  <div class="score-inner">
+                      <span class="score-number" id="losyashPoints">0</span>
+                      <span class="score-max">/100</span>
+                  </div>
+              </div>
+          </div>
+          <div class="card-progress">
+              <div class="progress-bar-mini">
+                  <div class="progress-fill-mini" id="losyashProgressFill"></div>
+              </div>
+              <div class="reward-badge" id="losyashReward">🔒</div>
+          </div>
       </div>
-    </div>
+
+      <!-- Крош -->
+      <div class="rating-card">
+          <div class="card-avatar">
+              <img class="card-avatar-img3" src="ФотоГл/крош2.png" alt="Крош">
+              <div class="card-status locked" id="kroshStatus"></div>
+          </div>
+          <div class="card-info">
+              <h3>Эко-приключения</h3>
+              <p>с Крошем</p>
+          </div>
+          <div class="card-score">
+              <div class="score-circle">
+                  <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="45" class="circle-bg"/>
+                      <circle cx="50" cy="50" r="45" class="circle-fill" id="kroshCircleFill"/>
+                  </svg>
+                  <div class="score-inner">
+                      <span class="score-number" id="kroshPoints">0</span>
+                      <span class="score-max">/100</span>
+                  </div>
+              </div>
+          </div>
+          <div class="card-progress">
+              <div class="progress-bar-mini">
+                  <div class="progress-fill-mini" id="kroshProgressFill"></div>
+              </div>
+              <div class="reward-badge" id="kroshReward">🔒</div>
+          </div>
+      </div>
+
+      <!-- Совунья -->
+      <div class="rating-card">
+          <div class="card-avatar">
+              <img class="card-avatar-img4" src="ФотоГл/Совунья.png" alt="Совунья">
+              <div class="card-status locked" id="sovunyaStatus"></div>
+          </div>
+          <div class="card-info">
+              <h3>Садовые приключения</h3>
+              <p>с Совуньей</p>
+          </div>
+          <div class="card-score">
+              <div class="score-circle">
+                  <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="45" class="circle-bg"/>
+                      <circle cx="50" cy="50" r="45" class="circle-fill" id="sovunyaCircleFill"/>
+                  </svg>
+                  <div class="score-inner">
+                      <span class="score-number" id="sovunyaPoints">0</span>
+                      <span class="score-max">/100</span>
+                  </div>
+              </div>
+          </div>
+          <div class="card-progress">
+              <div class="progress-bar-mini">
+                  <div class="progress-fill-mini" id="sovunyaProgressFill"></div>
+              </div>
+              <div class="reward-badge" id="sovunyaReward">🔒</div>
+          </div>
+      </div>
   </div>
-
+</div>
+  
 <!--Главная-->
 <div id="home">
-  <div class="container1">
-    <img src="ФотоГл/Звезды.png" alt="Звёзды" class="Stars" />
-    <h1 class="n7">Новые приключения каждый день!</h1>
-  </div>
-  <h1 class="heading1">Эко-приключения</h1>
-  <p class="heading2">со Смешариками!</p>
-  <img src="ФотоГл/Расточек.png" alt="Расточек" class="Boring" />
-  <h1 class="mainDescription">Присоединяйся к Крошу, Ёжику и их друзьям в удивительных<br> приключениях! Изучай природу, защищай окружающую среду<br> и веселись вместе с любимыми героями!</h1>
-  
-  <div class="point-container">
-  <h1 class="point1"></h1>
-  <h1 class="n11">Возраст 4-12 лет</h1>
-  <h1 class="point2"></h1>
-  <h1 class="n12">Безопасно и весело</h1>
-  <h1 class="point3"></h1>
-  <h1 class="n13">Каждый день новое!</h1>
+  <div class="hero-content">
+    <div class="emoji-cloud emoji-top">
+      <span class="floating-emoji">🌿</span>
+      <span class="floating-emoji">🐞</span>
+      <span class="floating-emoji">🌸</span>
+      
+    </div>
+    <div>
+      <p class="main-title">Эко-приключения</p>
+      <p class="sub-title">со Смешариками!</p>
+    </div>
+
+    
+    <div class="emoji-cloud emoji-bottom">
+      <span class="floating-emoji">🦋</span>
+      <span class="floating-emoji">🐝</span>
+      <span class="floating-emoji">🍃</span>
+    </div>
+
+    <div class="welcome-message">
+      <div class="greeting">🍃 Привет, юный эколог! 👋</div>
+      <p class="invite-text">Любишь Смешариков? Тогда вперёд - Крош, Лосяш, Совунья и Пин уже ждут тебя! Вместе вы будете:</p>
+
+      <div class="eco-activities">
+        <div class="activity">🐟 чистить реки и озёра</div>
+        <div class="activity">🌲 помогать лесным животным</div>
+        <div class="activity">🌍 сортировать мусор</div>
+        <div class="activity">🌸 выращивать цветы</div>
+      </div>
+
+      <p class="conclusion-text">И всё это - в увлекательных играх и приключениях!</p>
+      
+      <div class="point-container">
+        <div class="point1"></div>
+        <div class="n11">Возраст 4-12 лет</div>
+        <div class="point2"></div>
+        <div class="n12">Безопасно и весело</div>
+      </div>
+
+      <div class="hero-button">
+        <span class="hero-emoji">⭐</span> Стань эко-героем прямо сейчас! <span class="hero-emoji">⭐</span>
+      </div>
+    </div>
   </div>
 
   <img src="ФотоГл/Смешарики.png" alt="Смешарики" class="Smeshariki" />
-  <img src="ФотоГл/Цветочек.jpg" alt="Цветочек1" class="Flower1" />
-  <img src="ФотоГл/Рыбы.png" alt="Рыбы" class="Fishs" />
+  <div class="floating-element leaf1">🍃</div>
+  <div class="floating-element leaf2">🌿</div>
+  <div class="floating-element leaf3">🌸</div>
+  <div class="floating-element flower-leaf">🌼</div>
+  <div class="floating-element star-leaf">⭐</div>
+
   <div class="bouncing-circle1"></div>
   <div class="bouncing-circle2"></div>
 </div>
-
 
 <!--О нашей программе-->
 <div id="about1">
@@ -155,8 +311,39 @@ document.addEventListener('DOMContentLoaded', function() {
     <img src="ФотоГл/Звезда.png" alt="Звезда" class="Star"/>
     <h1 class="TextConAbout">О нашей программе</h1>
   </div>
+
   <h1 class="HeadingAbout1">Весёлое обучение с пользой для планеты!</h1>
   <h1 class="AboutDescription">Наша программа "Эко-приключения со Смешариками" помогает детям<br> узнать об экологии через игры, эксперименты и<br>приключения с любимыми героями!</h1>
+
+  <!-- Карусель слайдеров -->
+  <div class="carousel-container">
+    <button class="carousel-arrow prev-arrow" id="prevBtn">&#10094;</button>
+
+    <div class="carousel-slides">
+      <div class="carousel-slide active">
+        <img src="ФотоГл/ФотоОНашейПрограмме" alt="Крош с Ёжиком выбрасывают мусор" class="carousel-image">
+        <div class="carousel-caption">Интерактивные игры и эксперименты</div>
+      </div>
+      <div class="carousel-slide">
+        <img src="ФотоГл/ОНашейПрограмме4.jpg" alt="Копатыч сажает деревья" class="carousel-image">
+        <div class="carousel-caption">Путешествия с любимыми героями</div>
+      </div>
+      <div class="carousel-slide">
+        <img src="ФотоГл/ФотоОНашейПрограмме3" alt="Смешарики убирают листья" class="carousel-image">
+        <div class="carousel-caption">Забота о природе вместе</div>
+      </div>
+    </div>
+
+    <button class="carousel-arrow next-arrow" id="nextBtn">&#10095;</button>
+
+    <div class="carousel-dots">
+      <span class="dot active" data-index="0"></span>
+      <span class="dot" data-index="1"></span>
+      <span class="dot" data-index="2"></span>
+    </div>
+  </div>
+
+
   <div class="left-column">
     <div class="row">
         <div class="about-container">
@@ -169,58 +356,20 @@ document.addEventListener('DOMContentLoaded', function() {
             <h1 class="text-title">Защищаем природу</h1>
             <p class="text-description">Практические занятия по охране окружающей среды</p>
         </div>
-    </div>
-    <div class="row">
         <div class="about-container">
-            <img src="ФотоГл/Люди.png" alt="Люди" class="people"/>
-            <h1 class="text-title">Дружная команда</h1>
-            <p class="text-description">Командные игры и совместные эко-проекты</p>
-        </div>
-        <div class="about-container">
-            <img src="ФотоГл/Награда.png" alt="Награды" class="awards"/>
-            <h1 class="text-title">Награды и призы</h1>
-            <p class="text-description">Получай значки эко-героя за достижения!</p>
-        </div>
+          <img src="ФотоГл/Люди.png" alt="Люди" class="people"/>
+          <h1 class="text-title">Дружная команда</h1>
+          <p class="text-description">Командные игры и совместные эко-проекты</p>
+      </div>
+      <div class="about-container">
+          <img src="ФотоГл/Награда.png" alt="Награды" class="awards"/>
+          <h1 class="text-title">Награды и призы</h1>
+          <p class="text-description">Получай значки эко-героя за достижения!</p>
+      </div>
     </div>
-</div>
-<div class="right-column">
-  <img src="ФотоГл/Садоводство.jpg" alt="Фото-Садоводство" class="foto-gardening"/>
-  <img src="ФотоГл/Подсолнух.png" alt="Подсолнух" class="sunflower"/>
-  <img src="ФотоГл/Бабочка1.png" alt="Бабочка1" class="butterfly1"/>
+  </div>
 </div>
 </div>
-
-<!-- Наши достижения вместе -->
- <div class="containerAchievements">
-  <div class="headerContainer">
-    <img src="ФотоГл/Медаль.png" alt="Медаль" class="medal1"/>
-    <h1 class="textAchievements">Наши достижения вместе!</h1>
-  </div>
-  
-  <div class="formAchievement1">
-    <img src="ФотоГл/Расток1.png" alt="Росток" class="sproutAchievement"/>
-    <h1 class="textAchievement1">500+</h1>
-    <h1 class="textAchievement1-1">Мы изучили видов растений</h1>
-  </div>
-
-  <div class="FormAchievement2">
-    <img src="ФотоГл/Бабочка2.png" alt="Бабочка" class="ButterflyAchievement" />
-    <h1 class="TextAchievement2">200+</h1>
-    <h1 class="TextAchievement2-1">Помогли бабочкам и пчёлам</h1>
-  </div>
-
-  <div class="FormAchievement3">
-    <img src="ФотоГл/Переработка1.png" alt="Переработка" class="RecyclingAchievement" />
-    <h1 class="TextAchievement3">1000+</h1>
-    <h1 class="TextAchievement3-1">Переработали кг мусора</h1>
-  </div>
-
-  <div class="FormAchievement4">
-    <img src="ФотоГл/Земля.png" alt="Планета" class="EarthAchievement" />
-    <h1 class="TextAchievement4">50+</h1>
-    <h1 class="TextAchievement4-1">Спасли квадратных метров леса</h1>
-  </div>
- </div>
 
 <!-- Карта приключений -->
 <div>
@@ -257,65 +406,63 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <!-- Приключения-->
+<!-- Приключения-->
    <!-- Водные приключения с Пином -->
     <div id="adventures" class="waterAdventures">
       <div class="headerWaterAdventures">
-        <h1 class="textPin1">Водные приключения</h1>
-        <h1 class="textPin2">с Пином</h1>
+        <div class="classPhotoPin">
+          <img src="ФотоГл/пин.png" alt="Пин" class="photoPin">
+          <div>
+            <h1 class="textPin1">Водные приключения</h1>
+            <h1 class="textPin2">с Пином</h1>
+          </div>
+        </div>
       </div>
       <h1 class="textPin3">Очищаем водоёмы и изучаем водных обитателей</h1>
-      <button onclick="location.href='ИграСПином.html'" class="buttonPin">Начать приключение!</button>
+      <button onclick="location.href='../ИграСПином/ИграСПином.html'" class="buttonPin">Начать приключение!</button>
     </div>
     <!-- Приключение с Лосяшем -->
      <div class="forestAdventures">
       <div class="headerForestAdventures">
-        <div class="textLosyash1">Лесные приключения</div>
-        <div class="textLosysh2">с Лосяшем</div>
+        <div class="classPhotoLosyash">
+          <img src="ФотоГл/Лосяш.png" alt="Лосяш" class="photoLosyash">
+          <div>
+            <h1 class="textLosyash1">Лесные приключения</h1>
+            <h1 class="textLosysh2">с Лосяшем</h1>
+          </div>
+        </div>
       </div>
       <h1 class="textLosysh3">Изучаем животных леса и учимся им помогать</h1>
-      <button onclick="location.href='ИграСЛосяшем.html'" class="buttonLosysh">Начать приключение!</button>
+      <button onclick="location.href='../ИграСЛосяшем/ИграСЛосяшем.html'" class="buttonLosysh">Начать приключение!</button>
      </div>
      <!-- Приключение с Крошем -->
       <div class="ecoAdventures">
         <div class="headerecoAdventures">
-          <h1 class="textKrosh1">Эко-приключения</h1>
-          <h1 class="textKrosh2">с Крошем</h1>
+          <div class="classPhotoKrosh">
+            <img src="ФотоГл/крош2.png" alt="Крош" class="photoKrosh">
+            <div>
+              <h1 class="textKrosh1">Эко-приключения</h1>
+              <h1 class="textKrosh2">с Крошем</h1>
+            </div>
+          </div>
         </div>
         <h1 class="textKrosh3">Учимся сортировать мусор</h1>
-        <button onclick="location.href='ИграСКрошем.html'" class="buttonKrosh">Начать приключение!</button>
+        <button onclick="location.href='../ИграСКрошем/ИграСКрошем.html'" class="buttonKrosh">Начать приключение!</button>
       </div>
-      <!-- Приключение с Совуньей-->
-       <div class="gardenAdventures">
+      <!-- Приключение с Совуньей -->
+      <div class="gardenAdventures">
         <div class="headergardenAdventures">
-          <h1 class="textSovunya1">Садовые приключения</h1>
-          <h1 class="textSovunya2">с Совуньей</h1>
+          <div class="classPhotoSovunya">
+            <img src="ФотоГл/Совунья.png" alt="Совунья" class="photoSovunya">
+            <div>
+                <h1 class="textSovunya1">Садовые приключения</h1>
+                <h1 class="textSovunya2">с Совуньей</h1>
+            </div>
+          </div>
         </div>
         <h1 class="textSovunya3">Вырашиваем цветы</h1>
-        <button onclick="location.href='ИграССовуньей.html'" class="ButtonSovunya">Начать приключение!</button>
-       </div>
-</div>
-
-<!-- Информация для родителей -->
-<div id="parents">
-  <div class="ForParents">
-    <img src="ФотоГл/ЗначокСемья.png" alt="Значок семьи" class="familyIcon"/>
-    <h1 class="FamilyText1">Информация для родителей</h1>
-  </div>
-  <h1 class="familyText1">Доверьте развитие детей профессионалам!</h1>
-  <h1 class="familyText2">Наша программа не только развлекает детей, но и формирует экологическое<br> мышление, социальные навыки и любовьк природе.</h1>
-  <div class="familyContainer1">
-    <img src="ФотоГл/ЗначокБезопасности.png" alt="ЗначокБезопасности" class="iconSafety"/>
-    <h1 class="textFCon1">Безопасность</h1>
-  </div>
-  <div class="familyContainer2">
-    <img src="ФотоГл/Люди.png" alt="Люди" class="iconPeoples"/>
-    <h1 class="textFCon2">Социализация</h1>
-  </div>
-  <div class="familyContainer3">
-    <img src="ФотоГл/ЗначокСердце.png" alt="Значок сердца" class="iconHeart"/>
-    <h1 class="textFCon3">Эмоциональное развитие</h1>
-  </div>
+        <button onclick="location.href='../ИграССовуньей/ИграССовуньей.html'" class="ButtonSovunya">Начать приключение!</button>
+      </div>
 </div>
 
 <!-- Подвал-->
@@ -335,9 +482,10 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="footer-col">
       <div class="footer-heading">Быстрые ссылки</div>
+      <a class="footer-link" href="#home">Главная</a>
+      <a class="footer-link" href="#about1">О программе</a>
+      <a class="footer-link" href="#map">Карта приключений</a>
       <a class="footer-link" href="#adventures">Все приключения</a>
-  <a class="footer-link" href="#about1">О программе</a>
-  <a class="footer-link" href="#parents">Для родителей</a>
     </div>
     <div class="footer-col">
       <div class="footer-heading2">Эко-советы</div>
@@ -348,8 +496,8 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="footer-col">
       <div class="footer-heading2">Свяжись с нами</div>
-      <div class="footer-contact">+7 (495) 123-45-67</div>
-      <div class="footer-contact">eco@smeshariki.ru</div>
+      <div class="footer-contact">+7 (993) 551-86-12</div>
+      <div class="footer-contact">iraida.medvedeva.06@mail.ru</div>
       <div class="footer-contact">Тверь, наб. реки Лазури, д. 1</div>
     </div>
   </div>
