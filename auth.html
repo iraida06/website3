@@ -298,13 +298,9 @@
 
     <script>
         // ========== НАСТРОЙКА FIREBASE ==========
-        // ⚠️ ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА ВАШИ ИЗ КОНСОЛИ FIREBASE! ⚠️
-        
-// Конфигурация Firebase для вашего веб-приложения
-// Для Firebase JS SDK версии 7.20.0 и более поздних версий параметр measurementId является необязательным
 const firebaseConfig = {
  apiKey: "AIzaSyCY2mFu6xUL70sZhQKWv_CnM5DzGhfiPvI",
-authDomain: "ecoadventures-1c201.firebaseapp.com",
+ authDomain: "ecoadventures-1c201.firebaseapp.com",
  projectId: "ecoadventures-1c201",
  storageBucket: "ecoadventures-1c201.firebasestorage.app",
  messagingSenderId: "865358200859",
@@ -424,7 +420,22 @@ authDomain: "ecoadventures-1c201.firebaseapp.com",
                     avatar: selectedAvatar.img,
                     avatarName: selectedAvatar.name,
                     totalScore: 0,
-                    gamesPlayed: 0,
+
+                    level: 1,
+                    levelTitle: "🌱 Юный эколог",
+                    achievements: {
+                        pin: false,
+                        losyash: false,
+                        krosh: false,
+                        sovunya: false,
+                    },
+                    gameScores: {
+                        pin: 0,
+                        losyash: 0,
+                        krosh: 0,
+                        sovunya: 0
+                    },
+                    
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString()
                 };
