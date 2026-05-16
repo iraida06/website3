@@ -12,7 +12,10 @@ let gameState = {
     currentSlide: 0,
     totalSlides: 5,
     currentTool: 'water',
-    questionResults: [] // Массив для хранения результатов каждого вопроса: true - правильный, false - неправильный
+    questionResults: [], // Массив для хранения результатов каждого вопроса: true - правильный, false - неправильный
+    isAnswerLocked: false,
+    quizCompleted: false,
+    gardenBonusGiven: false
 };
 
 // Quiz questions data
@@ -82,7 +85,64 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFacts();
     initializeTools();
     setupPlantEventListeners();
+    showInstruction();
 });
+
+// ========== ИНСТРУКЦИЯ ПРИ ЗАГРУЗКЕ ==========
+function showInstruction() {
+    console.log('Показываем инструкцию...');
+    
+    const oldInstruction = document.getElementById('gameInstruction');
+    const oldOverlay = document.getElementById('instructionOverlay');
+    if (oldInstruction) oldInstruction.remove();
+    if (oldOverlay) oldOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'instructionOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 1999;
+        backdrop-filter: blur(5px);
+    `;
+
+    const instructionHTML = `
+        <div id="gameInstruction" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 30px; padding: 25px; 
+            max-width: 400px; width: 90%; z-index: 2000; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+            border: 2px solid #D962D9; text-align: center;">
+            <div style="font-size: 50px; margin-bottom: 10px;">🦉</div>
+            <h2 style="color: #D962D9; margin-bottom: 15px;">Как играть?</h2>
+            <div style="color: white; text-align: left; margin-bottom: 20px;">
+                <p style="margin: 10px 0;">📖 <strong>Шаг 1:</strong> Посмотри обучающий урок о садоводстве</p>
+                <p style="margin: 10px 0;">🌱 <strong>Шаг 2:</strong> Ухаживай за растениями (выбери инструмент, потом нажми на растение)</p>
+                <p style="margin: 10px 0;">❓ <strong>Шаг 3:</strong> Ответь на вопросы викторины</p>
+                <p style="margin: 10px 0;">⭐ <strong>Шаг 4:</strong> Получи награду эко-героя!</p>
+                <hr style="margin: 15px 0; border-color: #D962D9;">
+                <p style="margin: 10px 0; color: #D962D9;">💡 Совет: У каждого растения есть значок-подсказка! Сначала выбери инструмент, потом нажми на растение!</p>
+            </div>
+            <button onclick="closeInstruction()" style="background: #D962D9; border: none; padding: 12px 30px; 
+                border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; color: #1e293b;">
+                Начать приключение! ✨
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.insertAdjacentHTML('beforeend', instructionHTML);
+}
+
+function closeInstruction() {
+    console.log('Закрываем инструкцию...');
+    const instruction = document.getElementById('gameInstruction');
+    const overlay = document.getElementById('instructionOverlay');
+    if (instruction) instruction.remove();
+    if (overlay) overlay.remove();
+}
 
 // Update score display
 function updateScoreDisplay() {
@@ -145,7 +205,7 @@ function showSlide(slideIndex) {
         "Каждый цветок прекрасен по-своему! Изучай разные виды растений!",
         "Правильный полив - основа здорового сада! Не переливай и не забывай поливать!",
         "Уход за садом - это ежедневная работа, но как она прекрасна!",
-        "Природа дарит нам друзей! Береги насекомых - они помогают растениям!"
+        "Теперь ты знаешь основы садоводства! Готова применить знания на практике?"
     ];
     
     document.getElementById('teacherText').textContent = teacherTexts[slideIndex] || "Теперь ты готова стать настоящим садоводом!";
@@ -213,7 +273,7 @@ function handlePlantClick(e) {
     const currentTool = gameState.currentTool;
     
     if (plant.classList.contains('cared')) {
-        return; // Already cared for
+        return; 
     }
     
     if (plantNeed === currentTool) {
@@ -221,9 +281,12 @@ function handlePlantClick(e) {
         plant.classList.add('cared');
         gameState.plantsGrown++;
         
-        // Добавляем баллы
-        const newScore = gameState.score + 5;
-        gameState.score = Math.min(newScore, 100);
+        // Добавляем баллы только если ещё не достигли 100
+        if (gameState.score < 100) {
+            let newScore = gameState.score + 5;
+            if (newScore > 100) newScore = 100;
+            gameState.score = newScore;
+        }
         
         // Update plant appearance - скрываем иконку потребности
         updatePlantAppearance(plant);
@@ -231,22 +294,23 @@ function handlePlantClick(e) {
         // Show positive feedback с баллами
         showScorePopup(e.clientX, e.clientY, '+5');
         
-        // Check if all plants are cared for
-        if (gameState.plantsGrown >= gameState.totalPlants) {
-            setTimeout(() => {
-                // Добавляем бонус за завершение с ограничением
-                const bonusScore = gameState.score + 20;
-                gameState.score = Math.min(bonusScore, 100);
-                showScorePopup(window.innerWidth / 2, window.innerHeight / 2, '+15 Бонус за заботу!');
+        // Проверяем, все ли растения ухожены
+        if (gameState.plantsGrown >= gameState.totalPlants && !gameState.gardenBonusGiven) {
+            gameState.gardenBonusGiven = true;  // ← добавьте это поле в gameState
+            
+            if (gameState.score < 100) {
+                let bonusScore = gameState.score + 20;
+                if (bonusScore > 100) bonusScore = 100;
+                gameState.score = bonusScore;
+                showScorePopup(window.innerWidth / 2, window.innerHeight / 2, '+20 Бонус за заботу!');
                 updateScoreDisplay();
-                
-                setTimeout(() => {
-                    startQuiz();
-                }, 1500);
-            }, 800);
+            }
+            
+            setTimeout(() => {
+                startQuiz();
+            }, 1500);
         }
     } else {
-        // Wrong tool used
         showGardenFeedback("Не тот инструмент! Посмотри на подсказку!");
     }
     
@@ -349,9 +413,13 @@ function showQuestion() {
         questionImage.innerHTML = `<img class="plant-icon" src="${question.image}" alt="Изображение вопроса">`;
     }
     
-    document.getElementById('helperText').textContent = "Подумай внимательно! Вспомни урок о садоводстве!";
+    // ✅ ВОТ ЗДЕСЬ - сбрасываем цвет и текст на чёрный/стандартный
+    const helperTextElement = document.getElementById('helperText');
+    helperTextElement.textContent = "Подумай внимательно! Вспомни урок о садоводстве!";
+    helperTextElement.style.color = ''; // Сбрасываем цвет (вернётся к чёрному из CSS)
+    // или явно: helperTextElement.style.color = '#000000';
     
-    // Create answer options
+    // Создаём варианты ответов
     const answersContainer = document.getElementById('quizAnswers');
     answersContainer.innerHTML = '';
     
@@ -367,45 +435,47 @@ function showQuestion() {
 }
 
 function selectAnswer(selectedIndex) {
+    if (gameState.isAnswerLocked) return;
+    gameState.isAnswerLocked = true;
+    
     const question = quizQuestions[gameState.currentQuestion];
     const answerButtons = document.querySelectorAll('.answer-option');
     const isCorrect = selectedIndex === question.correct;
     
-    // Сохраняем результат
     gameState.questionResults[gameState.currentQuestion] = isCorrect;
-    gameState.currentQuestionAnswered = true;
     
-    // Disable all buttons
     answerButtons.forEach(button => {
         button.disabled = true;
     });
     
-    // Mark selected answer
     answerButtons[selectedIndex].classList.add('selected');
     
     setTimeout(() => {
+        const helperText = document.getElementById('helperText');
+        
         if (isCorrect) {
-            // Correct answer - +10 баллов 
             answerButtons[selectedIndex].classList.add('correct');
             gameState.correctAnswers++;
             
             const newScore = gameState.score + 10;
             gameState.score = Math.min(newScore, 100);
             
-            document.getElementById('helperText').textContent = "Правильно! " + question.helper;
+            helperText.innerHTML = "✅ Правильно! " + question.helper;
+            helperText.style.color = '#22c55e'; // Зелёный
             showScorePopup(window.innerWidth / 2, 200, '+10');
         } else {
-            // Incorrect answer
             answerButtons[selectedIndex].classList.add('incorrect');
             answerButtons[question.correct].classList.add('correct');
-            document.getElementById('helperText').textContent = question.helper;
+            
+            helperText.innerHTML = `❌ Неправильно! ${question.helper}`;
+            helperText.style.color = '#ef4444'; // Красный
         }
         
         updateScoreDisplay();
-        updateProgressDots(); // Обновляем точки прогресса
+        updateProgressDots();
         
         setTimeout(() => {
-            gameState.currentQuestionAnswered = false;
+            gameState.isAnswerLocked = false;
             nextQuestion();
         }, 3000);
     }, 500);
@@ -415,10 +485,11 @@ function nextQuestion() {
     gameState.currentQuestion++;
     
     if (gameState.currentQuestion < quizQuestions.length) {
-        showQuestion();
+        showQuestion(); // Там уже будет сброс цвета
     } else {
         showResults();
     }
+    gameState.isAnswerLocked = false;
 }
 
 
@@ -452,17 +523,29 @@ function updateProgressDots() {
 }
 
 // Show results
-function showResults() {
+async function showResults() {
+    // Если викторина уже была завершена - не начисляем бонусы повторно
+    if (gameState.quizCompleted) {
+        showScreen('resultsScreen');
+        gameState.currentScreen = 'results';
+        return;
+    }
+    
+    gameState.quizCompleted = true;  // Отмечаем, что викторина завершена
+    
     showScreen('resultsScreen');
     gameState.currentScreen = 'results';
     
     // Рассчитать финальную статистику с бонусами
-    const helpingBonus = gameState.plantsGrown === gameState.totalPlants ? 12 : 0;
-    const perfectQuizBonus = gameState.correctAnswers === quizQuestions.length ? 18 : 0;
+    const helpingBonus = (gameState.plantsGrown === gameState.totalPlants && gameState.score < 100) ? 0 : 0;
+    const perfectQuizBonus = (gameState.correctAnswers === quizQuestions.length && gameState.score < 100) ? 0 : 0;
     
     // Добавляем бонусы с ограничением максимум 100
-    const totalScore = gameState.score + helpingBonus + perfectQuizBonus;
-    gameState.score = Math.min(totalScore, 100);
+    let totalScore = gameState.score + helpingBonus + perfectQuizBonus;
+    
+    // Ограничиваем максимум 100
+    if (totalScore > 100) totalScore = 100;
+    gameState.score = totalScore;
     
     updateScoreDisplay();
     
@@ -494,6 +577,8 @@ function showResults() {
         document.getElementById('resultsTitle').textContent = 'Начинающий садовод!';
         document.getElementById('resultsDescription').textContent = 'Неплохо! Продолжай учиться и у тебя всё получится!';
     }
+
+    await forceUpdateUserScore('sovunya', gameState.score);
 }
 
 // Initialize facts carousel
@@ -547,7 +632,7 @@ function goToFact(index) {
 
 // Game controls -
 function playAgain() {
-    // Reset game state - обновляем глобальную переменную gameState
+    // Reset game state - обновление глобальной переменной gameState
     gameState = {
         currentScreen: 'intro',
         score: 0,
@@ -559,7 +644,10 @@ function playAgain() {
         currentSlide: 0,
         totalSlides: 5,
         currentTool: 'water',
-        questionResults: []
+        questionResults: [],
+        isAnswerLocked: false,
+        quizCompleted: false,
+        gardenBonusGiven: false 
     };
     
     // Reset UI
@@ -685,5 +773,12 @@ function showScorePopup(x, y, text) {
     setTimeout(() => {
         popup.remove();
     }, 2000);
+}
 
+async function completeGame() {
+    const success = await updateUserScore('sovunya', 100); // 100 очков за игру
+    if (success) {
+        alert('🎉 Поздравляем! Вы получили 100 очков эко-героя!');
+        // Перенаправление или продолжение
+    }
 }
