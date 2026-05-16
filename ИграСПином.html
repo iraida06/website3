@@ -5,9 +5,171 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Водные приключения с Пином - Эко-викторина</title>
     <link rel="stylesheet" href="ИграСПином.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="ИграСПином.js"></script>
 </head>
 <body>
+     <script>
+        // ========== КОНФИГУРАЦИЯ FIREBASE ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyCY2mFu6xUL70sZhQKWv_CnM5DzGhfiPvI",
+            authDomain: "ecoadventures-1c201.firebaseapp.com",
+            projectId: "ecoadventures-1c201",
+            storageBucket: "ecoadventures-1c201.firebasestorage.app",
+            messagingSenderId: "865358200859",
+            appId: "1:865358200859:web:62ec18608185782719b8be",
+            measurementId: "G-JS1JE6PJZW"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        // ========== ФУНКЦИЯ ОБНОВЛЕНИЯ ОЧКОВ ==========
+        async function updateUserScore(gameId, earnedPoints) {
+            const currentUser = localStorage.getItem('currentUser');
+            if (!currentUser) {
+                console.log('Пользователь не авторизован');
+                return false;
+            }
+        
+            try {
+                const user = JSON.parse(currentUser);
+                const userRef = db.collection('users').doc(user.id);
+                const userDoc = await userRef.get();
+                
+                if (!userDoc.exists) {
+                    console.log('Пользователь не найден в БД');
+                    return false;
+                }
+                
+                const userData = userDoc.data();
+                const gameScores = userData.gameScores || {};
+                
+                // Проверяем, не получал ли уже пользователь очки за эту игру
+                if (gameScores[gameId] && gameScores[gameId] >= earnedPoints) {
+                    console.log('Очки за эту игру уже были получены');
+                    return false;
+                }
+        
+                const newTotalScore = (userData.totalScore || 0) + earnedPoints;
+                const newGameScores = { ...gameScores, [gameId]: earnedPoints };
+        
+                const newLevel = Math.floor(newTotalScore / 100) + 1;
+                const levelTitles = {
+                    1: "🌱 Юный эколог",
+                    2: "🍃 Начинающий защитник",
+                    3: "🌿 Помощник природы",
+                    4: "🌸 Друг леса",
+                    5: "🌟 Эко-герой",
+                    6: "⭐ Хранитель планеты",
+                    7: "🏆 Мастер экологии",
+                    8: "🦸 Защитник природы",
+                    9: "🌍 Эко-чемпион",
+                    10: "💚 Легенда экологии"
+                };
+        
+                const updates = {
+                    totalScore: newTotalScore,
+                    level: Math.min(newLevel, 10),
+                    levelTitle: levelTitles[Math.min(newLevel, 10)],
+                    gameScores: newGameScores
+                };
+        
+                if (earnedPoints >= 100) {
+                    const achievements = userData.achievements || {};
+                    achievements[gameId] = true;
+                    updates.achievements = achievements;
+                }
+        
+                await userRef.update(updates);
+        
+                // Обновляем локальное хранилище
+                const updatedUser = { ...user, ...updates };
+                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        
+                console.log(`✅ Добавлено ${earnedPoints} очков за игру ${gameId}`);
+                return true;
+            } catch (error) {
+                console.error('Ошибка обновления очков:', error);
+                return false;
+            }
+        }
+        // ========== ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ОЧКОВ ==========
+async function forceUpdateUserScore(gameId, earnedPoints) {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+        console.log('Пользователь не авторизован');
+        return false;
+    }
+
+    try {
+        const user = JSON.parse(currentUser);
+        const userRef = db.collection('users').doc(user.id);
+        const userDoc = await userRef.get();
+        
+        if (!userDoc.exists) {
+            console.log('Пользователь не найден в БД');
+            return false;
+        }
+        
+        const userData = userDoc.data();
+        const gameScores = userData.gameScores || {};
+        
+        // Обновляем очки ТОЛЬКО для текущей игры
+        const newGameScores = { ...gameScores, [gameId]: earnedPoints };
+        
+        // ПЕРЕСЧИТЫВАЕМ общую сумму = сумма очков по ВСЕМ играм
+        const newTotalScore = (newGameScores.pin || 0) + 
+                              (newGameScores.losyash || 0) + 
+                              (newGameScores.krosh || 0) + 
+                              (newGameScores.sovunya || 0);
+        
+        // Ограничиваем максимум 100 (или убрать, если хотите больше)
+        const finalTotalScore = newTotalScore;
+
+        const newLevel = Math.floor(finalTotalScore / 100) + 1;
+        const levelTitles = {
+            1: "🌱 Юный эколог",
+            2: "🍃 Начинающий защитник",
+            3: "🌿 Помощник природы",
+            4: "🌸 Друг леса",
+            5: "🌟 Эко-герой",
+            6: "⭐ Хранитель планеты",
+            7: "🏆 Мастер экологии",
+            8: "🦸 Защитник природы",
+            9: "🌍 Эко-чемпион",
+            10: "💚 Легенда экологии"
+        };
+
+        const updates = {
+            totalScore: finalTotalScore,
+            level: Math.min(newLevel, 10),
+            levelTitle: levelTitles[Math.min(newLevel, 10)],
+            gameScores: newGameScores
+        };
+
+        if (earnedPoints >= 100) {
+            const achievements = userData.achievements || {};
+            achievements[gameId] = true;
+            updates.achievements = achievements;
+        }
+
+        await userRef.update(updates);
+
+        // Обновляем локальное хранилище
+        const updatedUser = { ...user, ...updates };
+        localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+        console.log(`✅ Обновлено! Игра ${gameId}: ${earnedPoints} очков. Общая сумма: ${finalTotalScore}`);
+        return true;
+    } catch (error) {
+        console.error('Ошибка обновления очков:', error);
+        return false;
+    }
+}
+</script>
+    
     <div class="game-container">
         <!-- Заголовок игры -->
         <header class="game-header">
@@ -161,17 +323,17 @@
                     </button>
                 </div>
                 
-                <div class="lecture-footer">
-                    <button class="start-game-button" onclick="startGame()" style="display: none;">
-                        <span>Теперь давай практиковаться! 🚀</span>
-                    </button>
-                </div>
-                
                 <div class="pin-teacher">
                     <img src="ФотоПин/Пин2.png" alt="Пин" class="teacher-avatar"/>
                     <div class="teacher-speech">
                         <p id="teacherText">Теперь ты знаешь, почему так важно защищать наши водоёмы! Готов применить знания на практике?</p>
                     </div>
+                </div>
+
+                <div class="lecture-footer">
+                    <button class="start-game-button" onclick="startGame()" style="display: none;">
+                        <span>Теперь давай практиковаться! 🚀</span>
+                    </button>
                 </div>
             </div>
         </div>
