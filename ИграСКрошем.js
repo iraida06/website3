@@ -10,7 +10,8 @@ let gameState = {
     trashSorted: 0,
     totalTrash: 6,
     currentSlide: 0,
-    totalSlides: 5
+    totalSlides: 5,
+    isAnswerLocked: false
 };
 
 // Данные вопросов викторины
@@ -20,35 +21,35 @@ const quizQuestions = [
         image: "ФотоКрош/стакан.png",
         answers: ["Синий (бумага)", "Жёлтый (пластик)", "Зелёный (стекло)", "Коричневый (органика)"],
         correct: 1,
-        helper: "Пластиковые бутылки нужно выбрасывать в жёлтый контейнер для пластика и металла!"
+        helper: "✅ Правильно! Пластиковые стаканчики нужно выбрасывать в жёлтый контейнер для пластика и металла!"
     },
     {
         question: "Куда правильно выбросить банановую кожуру?",
         image: "ФотоКрош/БанановаяКожура.png",
         answers: ["Синий (бумага)", "Жёлтый (пластик)", "Зелёный (стекло)", "Коричневый (органика)"],
         correct: 3,
-        helper: "Банановая кожура - это органические отходы, они идут в коричневый контейнер!"
+        helper: "✅ Молодец! Банановая кожура - это органические отходы, они идут в коричневый контейнер!"
     },
     {
         question: "В какой контейнер нужно выбросить старую газету?",
         image: "ФотоКрош/Газета.png",
         answers: ["Синий (бумага)", "Жёлтый (пластик)", "Зелёный (стекло)", "Коричневый (органика)"],
         correct: 0,
-        helper: "Газеты и другая бумага идут в синий контейнер для бумажных отходов!"
+        helper: "✅ Отлично! Газеты и другая бумага идут в синий контейнер для бумажных отходов!"
     },
     {
-        question: "Куда правильно выбросит банку?",
+        question: "Куда правильно выбросить стеклянную банку?",
         image: "ФотоКрош/Банка.png",
         answers: ["Синий (бумага)", "Жёлтый (пластик)", "Зелёный (стекло)", "Коричневый (органика)"],
         correct: 2,
-        helper: "Стеклянная банка должна попасть в зелёный контейнер для стекла!"
+        helper: "✅ Правильно! Стеклянная банка должна попасть в зелёный контейнер для стекла!"
     },
     {
         question: "Что НЕ относится к органическим отходам?",
         image: "ФотоКрош/Мусор6.png",
         answers: ["Яблочная кожура", "Пластиковая упаковка", "Кофейная гуща", "Листья"],
         correct: 1,
-        helper: "Пластиковая упаковка не органический отход! Её нужно сдавать на переработку."
+        helper: "✅ Верно! Пластиковая упаковка не органический отход! Её нужно сдавать на переработку."
     }
 ];
 
@@ -79,12 +80,69 @@ let draggedElement = null;
 document.addEventListener('DOMContentLoaded', function() {
     updateScoreDisplay();
     initializeFacts();
-    resetGamePositions(); // Возвращение элементов на свои места
+    resetGamePositions();
+    showInstruction(); // Показываем инструкцию при загрузке игры
 });
+// ПОКАЗ ИНСТРУКЦИИ
+function showInstruction() {
+    console.log('Показываем инструкцию...');
+    
+    const oldInstruction = document.getElementById('gameInstruction');
+    const oldOverlay = document.getElementById('instructionOverlay');
+    if (oldInstruction) oldInstruction.remove();
+    if (oldOverlay) oldOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'instructionOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 1999;
+        backdrop-filter: blur(5px);
+    `;
+
+    const instructionHTML = `
+        <div id="gameInstruction" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 30px; padding: 25px; 
+            max-width: 400px; width: 90%; z-index: 2000; box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+            border: 2px solid #fbbf24; text-align: center;">
+            <div style="font-size: 50px; margin-bottom: 10px;">🐰</div>
+            <h2 style="color: #fbbf24; margin-bottom: 15px;">Как играть?</h2>
+            <div style="color: white; text-align: left; margin-bottom: 20px;">
+                <p style="margin: 10px 0;">📖 <strong>Шаг 1:</strong> Посмотри обучающий урок о сортировке мусора</p>
+                <p style="margin: 10px 0;">🗑️ <strong>Шаг 2:</strong> Перетащи мусор в нужные контейнеры (выбери предмет и перетащи его)</p>
+                <p style="margin: 10px 0;">❓ <strong>Шаг 3:</strong> Ответь на вопросы викторины</p>
+                <p style="margin: 10px 0;">⭐ <strong>Шаг 4:</strong> Получи награду эко-героя!</p>
+                <hr style="margin: 15px 0; border-color: #fbbf24;">
+                <p style="margin: 10px 0; color: #fbbf24;">💡 Совет: Вспомни цвета контейнеров: синий - бумага, жёлтый - пластик, зелёный - стекло, коричневый - органика!</p>
+            </div>
+            <button onclick="closeInstruction()" style="background: #fbbf24; border: none; padding: 12px 30px; 
+                border-radius: 50px; font-size: 16px; font-weight: bold; cursor: pointer; color: #1e293b;">
+                Начать приключение! ✨
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    document.body.insertAdjacentHTML('beforeend', instructionHTML);
+}
+
+function closeInstruction() {
+    console.log('Закрываем инструкцию...');
+    const instruction = document.getElementById('gameInstruction');
+    const overlay = document.getElementById('instructionOverlay');
+    if (instruction) instruction.remove();
+    if (overlay) overlay.remove();
+}
 
 // Обновление отображения счёта
 function updateScoreDisplay() {
-    document.getElementById('score').textContent = gameState.score;
+    const scoreElement = document.getElementById('score');
+    if (scoreElement) scoreElement.textContent = gameState.score;
 }
 
 // Функция для добавления баллов
@@ -129,8 +187,8 @@ function showScorePopup(x, y, text) {
 
 // Функция для сброса позиций всех элементов мусора
 function resetGamePositions() {
-    const trashItems = document.querySelectorAll('.trash-item');
     const trashContainer = document.querySelector('.trash-items');
+    if (!trashContainer) return;
     
     // Очищаем контейнер
     trashContainer.innerHTML = '';
@@ -178,9 +236,7 @@ function resetGamePositions() {
         item.style.opacity = '1';
         item.style.pointerEvents = 'auto';
         item.style.transform = 'translate(-50%, -50%)';
-        item.style.zIndex = '';
-        item.classList.remove('dragging', 'sorted', 'selected');
-        item.style.animation = '';
+        item.classList.remove('dragging', 'sorted');
     });
     
     // Сбрасываем контейнеры
@@ -206,14 +262,11 @@ function initializeDragAndDrop() {
     const trashItems = document.querySelectorAll('.trash-item');
     const bins = document.querySelectorAll('.bin');
     
-    console.log('Initializing drag and drop:', trashItems.length, 'items,', bins.length, 'bins');
-    
     // Настройка элементов корзины
     trashItems.forEach(item => {
         item.setAttribute('draggable', 'true');
         
         item.addEventListener('dragstart', function(e) {
-            console.log('Drag start:', this.dataset.type);
             draggedElement = this;
             this.classList.add('dragging');
             e.dataTransfer.setData('text/plain', this.dataset.type);
@@ -221,7 +274,6 @@ function initializeDragAndDrop() {
         });
         
         item.addEventListener('dragend', function() {
-            console.log('Drag end');
             this.classList.remove('dragging');
             draggedElement = null;
         });
@@ -248,13 +300,10 @@ function initializeDragAndDrop() {
             e.preventDefault();
             this.classList.remove('drag-over');
             
-            console.log('Drop on bin:', this.dataset.type);
-            
             if (draggedElement && !draggedElement.classList.contains('sorted')) {
                 const itemType = draggedElement.dataset.type;
                 const binType = this.dataset.type;
-                
-                console.log('Item type:', itemType, 'Bin type:', binType);
+                const helperText = document.getElementById('sortingHelperText');
                 
                 if (itemType === binType) {
                     // Правильная сортировка - 5 баллов за каждый предмет
@@ -264,16 +313,24 @@ function initializeDragAndDrop() {
                     gameState.trashSorted++;
                     
                     const addedPoints = addScore(5);
-                    console.log('Correct! Trash sorted:', gameState.trashSorted, 'Total:', gameState.totalTrash);
                     
                     // Показывайте положительные отзывы с баллами
                     showScorePopup(e.clientX, e.clientY, `+${addedPoints}`);
                     
-                    // Проверка сортировки всех предметов
-                    if (gameState.trashSorted >= gameState.totalTrash) {
-                        console.log('All trash sorted! Starting quiz...');
+                    /// Показываем положительный комментарий ТОЛЬКО после действия
+                    if (helperText) {
+                        helperText.innerHTML = '🎉 Отлично! Правильно отсортировал! +5 очков!';
+                        helperText.style.color = '#22c55e';
                         setTimeout(() => {
-                            // Бонус за полную сортировку - 15 баллов
+                            if (helperText) {
+                                helperText.innerHTML = 'Продолжай в том же духе! Перетаскивай предметы в нужные контейнеры!';
+                                helperText.style.color = '';
+                            }
+                        }, 2500);
+                    }
+                    
+                    if (gameState.trashSorted >= gameState.totalTrash) {
+                        setTimeout(() => {
                             const bonusPoints = addScore(15);
                             updateScoreDisplay();
                             showScorePopup(window.innerWidth / 2, window.innerHeight / 2, `+${bonusPoints} Бонус за сортировку!`);
@@ -285,28 +342,28 @@ function initializeDragAndDrop() {
                     }
                 } else {
                     // Неправильная сортировка
-                    // Сохраняем текущую позицию
-                    const currentTransform = draggedElement.style.transform;
-                    
-                    // Анимация неправильного выбора с правильным учетом позиции
                     draggedElement.style.animation = 'shake 0.5s ease-in-out';
                     
                     setTimeout(() => {
                         draggedElement.style.animation = '';
-                        // Восстанавливаем позицию после анимации
-                        draggedElement.style.transform = currentTransform;
                     }, 500);
                     
-                    // Показываем сообщение об ошибке
-                    const helperText = document.getElementById('sortingHelperText');
+                    // Показываем подсказку ТОЛЬКО после неправильного действия
                     if (helperText) {
-                        helperText.textContent = 'Попробуй ещё раз! Этот предмет не подходит для этого контейнера.';
+                        helperText.innerHTML = '😔 Неправильно! Этот предмет не подходит для этого контейнера. Попробуй ещё раз!';
                         helperText.style.color = '#ef4444';
                         
                         setTimeout(() => {
-                            helperText.textContent = "Отлично! Перетаскивай предметы в правильные контейнеры!";
-                            helperText.style.color = '';
-                        }, 3000);
+                            if (helperText && !helperText.innerHTML.includes('Отлично')) {
+                                helperText.innerHTML = 'Подсказка: Вспомни цвета контейнеров и какие отходы куда класть!';
+                                setTimeout(() => {
+                                    if (helperText && !helperText.innerHTML.includes('Отлично')) {
+                                        helperText.innerHTML = 'Перетаскивай предметы в правильные контейнеры!';
+                                        helperText.style.color = '';
+                                    }
+                                }, 3000);
+                            }
+                        }, 2500);
                     }
                 }
                 
@@ -315,6 +372,16 @@ function initializeDragAndDrop() {
             }
         });
     });
+}
+
+function updateSortingProgress() {
+    const percentage = Math.round((gameState.trashSorted / gameState.totalTrash) * 100);
+    
+    const progressFill = document.getElementById('sortingProgress');
+    const percentageText = document.getElementById('sortingPercentage');
+    
+    if (progressFill) progressFill.style.width = percentage + '%';
+    if (percentageText) percentageText.textContent = percentage + '%';
 }
 
 // Начало лекции
@@ -372,7 +439,8 @@ function showSlide(slideIndex) {
         "Органические отходы превращаются в компост - отличное удобрение для растений!"
     ];
     
-    document.getElementById('teacherText').textContent = teacherTexts[slideIndex] || "Теперь ты готов к практике!";
+    const teacherTextElement = document.getElementById('teacherText');
+    if (teacherTextElement) teacherTextElement.textContent = teacherTexts[slideIndex] || "Теперь ты готов к практике!";
 }
 
 function updateLectureNavigation() {
@@ -395,64 +463,203 @@ function updateLectureNavigation() {
 function startGame() {
     showScreen('sortingScreen');
     gameState.currentScreen = 'sorting';
-    
-    // Сброс состояние игры для сортировки
     gameState.trashSorted = 0;
     
-    // Сброс всех позиций и состояний
     resetGamePositions();
     
-    // Инициализация перетаскивания
     setTimeout(() => {
-        initializeDragAndDrop();
+        initializeTouchDragAndDrop(); // Заменяем на новую функцию
         updateSortingProgress();
     }, 100);
     
-    // Инициализация перетаскивания
     const helperText = document.getElementById('sortingHelperText');
     if (helperText) {
-        helperText.textContent = "Отлично! Перетаскивай предметы в правильные контейнеры!";
-        helperText.style.color = ''; // Убираем цвет
+        helperText.innerHTML = '🎯 Нажми и перетащи предмет пальцем в контейнер!';
+        helperText.style.color = '#fbbf24';
+    }
+}
+// ===== ПОДДЕРЖКА СЕНСОРНОГО ПЕРЕТАСКИВАНИЯ ДЛЯ МОБИЛЬНЫХ =====
+let touchDraggedElement = null;
+let touchStartX = 0, touchStartY = 0;
+
+function initializeTouchDragAndDrop() {
+    const trashItems = document.querySelectorAll('.trash-item');
+    const bins = document.querySelectorAll('.bin');
+    
+    trashItems.forEach(item => {
+        // Для мыши
+        item.setAttribute('draggable', 'true');
+        
+        // Для сенсорных экранов
+        item.addEventListener('touchstart', handleTouchStart, { passive: false });
+        item.addEventListener('touchmove', handleTouchMove, { passive: false });
+        item.addEventListener('touchend', handleTouchEnd);
+        
+        // Существующие обработчики для мыши
+        item.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.dataset.type);
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        
+        item.addEventListener('dragend', function() {
+            this.classList.remove('dragging');
+            draggedElement = null;
+        });
+    });
+    
+    bins.forEach(bin => {
+        bin.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+            e.dataTransfer.dropEffect = 'move';
+        });
+        
+        bin.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        });
+        
+        bin.addEventListener('dragleave', function() {
+            this.classList.remove('drag-over');
+        });
+        
+        bin.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            if (draggedElement && !draggedElement.classList.contains('sorted')) {
+                handleDrop(draggedElement, this, e.clientX, e.clientY);
+            }
+        });
+        
+        // Сенсорный дроп
+        bin.addEventListener('touchstart', function(e) {
+            if (touchDraggedElement) {
+                e.preventDefault();
+                const rect = this.getBoundingClientRect();
+                const touch = e.touches[0];
+                handleDrop(touchDraggedElement, this, touch.clientX, touch.clientY);
+                touchDraggedElement = null;
+            }
+        });
+    });
+}
+
+function handleTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchDraggedElement = this;
+    this.classList.add('dragging');
+    
+    // Создаем клон для визуального отклика
+    const clone = this.cloneNode(true);
+    clone.id = 'dragClone';
+    clone.style.position = 'fixed';
+    clone.style.left = touchStartX - 40 + 'px';
+    clone.style.top = touchStartY - 40 + 'px';
+    clone.style.width = '80px';
+    clone.style.height = '80px';
+    clone.style.opacity = '0.8';
+    clone.style.zIndex = '9999';
+    clone.style.pointerEvents = 'none';
+    clone.style.transform = 'scale(1.1)';
+    document.body.appendChild(clone);
+}
+
+function handleTouchMove(e) {
+    if (!touchDraggedElement) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const clone = document.getElementById('dragClone');
+    if (clone) {
+        clone.style.left = touch.clientX - 40 + 'px';
+        clone.style.top = touch.clientY - 40 + 'px';
     }
 }
 
-function updateSortingProgress() {
-    console.log('Updating progress:', gameState.trashSorted, '/', gameState.totalTrash);
+function handleTouchEnd(e) {
+    e.preventDefault();
+    const clone = document.getElementById('dragClone');
+    if (clone) clone.remove();
+    touchDraggedElement.classList.remove('dragging');
     
-    const percentage = Math.round((gameState.trashSorted / gameState.totalTrash) * 100);
-    console.log('Percentage:', percentage + '%');
-    
-    const progressFill = document.getElementById('sortingProgress');
-    const percentageText = document.getElementById('sortingPercentage');
-    
-    if (progressFill) {
-        progressFill.style.width = percentage + '%';
-        console.log('Progress bar width set to:', percentage + '%');
-    } else {
-        console.error('Progress fill element not found!');
-        // Создаем элемент если не найден
-        createProgressElements();
-    }
-    
-    if (percentageText) {
-        percentageText.textContent = percentage + '%';
-        console.log('Percentage text set to:', percentage + '%');
-    } else {
-        console.error('Percentage text element not found!');
-    }
+    // Если элемент не был брошен на контейнер, возвращаем его на место
+    setTimeout(() => {
+        if (touchDraggedElement && !touchDraggedElement.classList.contains('sorted')) {
+            touchDraggedElement.style.opacity = '1';
+            touchDraggedElement.style.pointerEvents = 'auto';
+        }
+        touchDraggedElement = null;
+    }, 100);
 }
 
-// Функция для создания элементов прогресса если они не найдены
-function createProgressElements() {
-    const progressContainer = document.querySelector('.sorting-progress');
-    if (!progressContainer) return;
+function handleDrop(draggedItem, binElement, clientX, clientY) {
+    if (draggedItem.classList.contains('sorted')) return;
     
-    progressContainer.innerHTML = `
-        <div class="progress-bar">
-            <div class="progress-fill" id="sortingProgress"></div>
-        </div>
-        <p>Отсортировано: <span id="sortingPercentage">0%</span></p>
-    `;
+    const itemType = draggedItem.dataset.type;
+    const binType = binElement.dataset.type;
+    const helperText = document.getElementById('sortingHelperText');
+    
+    if (itemType === binType) {
+        // Правильная сортировка
+        draggedItem.style.opacity = '0.3';
+        draggedItem.style.pointerEvents = 'none';
+        draggedItem.classList.add('sorted');
+        gameState.trashSorted++;
+        
+        const addedPoints = addScore(5);
+        updateScoreDisplay();
+        showScorePopup(clientX, clientY, `+${addedPoints}`);
+        
+        if (helperText) {
+            helperText.innerHTML = '🎉 Отлично! Правильно отсортировал! +5 очков!';
+            helperText.style.color = '#22c55e';
+            setTimeout(() => {
+                if (helperText) {
+                    helperText.innerHTML = 'Продолжай! Перетаскивай предметы в нужные контейнеры!';
+                    helperText.style.color = '';
+                }
+            }, 2500);
+        }
+        
+        if (gameState.trashSorted >= gameState.totalTrash) {
+            setTimeout(() => {
+                const bonusPoints = addScore(15);
+                updateScoreDisplay();
+                showScorePopup(window.innerWidth / 2, window.innerHeight / 2, `+${bonusPoints} Бонус за сортировку!`);
+                setTimeout(() => startQuiz(), 2000);
+            }, 1500);
+        }
+    } else {
+        // Неправильная сортировка
+        draggedItem.style.animation = 'shake 0.5s ease-in-out';
+        setTimeout(() => {
+            draggedItem.style.animation = '';
+        }, 500);
+        
+        if (helperText) {
+            helperText.innerHTML = '😔 Неправильно! Этот предмет не подходит для этого контейнера. Попробуй ещё раз!';
+            helperText.style.color = '#ef4444';
+            setTimeout(() => {
+                if (helperText && !helperText.innerHTML.includes('Отлично')) {
+                    helperText.innerHTML = 'Подсказка: Вспомни цвета контейнеров!';
+                    setTimeout(() => {
+                        if (helperText && !helperText.innerHTML.includes('Отлично')) {
+                            helperText.innerHTML = 'Перетаскивай предметы в правильные контейнеры!';
+                            helperText.style.color = '';
+                        }
+                    }, 3000);
+                }
+            }, 2500);
+        }
+    }
+    
+    updateScoreDisplay();
+    updateSortingProgress();
 }
 
 // Начало теста
@@ -461,6 +668,7 @@ function startQuiz() {
     gameState.currentScreen = 'quiz';
     gameState.currentQuestion = 0;
     gameState.correctAnswers = 0;
+    gameState.isAnswerLocked = false; // Сбрасываем блокировку
     
     // Инициализация точек прогресса
     initializeProgressDots();
@@ -484,35 +692,53 @@ function initializeProgressDots() {
 function showQuestion() {
     const question = quizQuestions[gameState.currentQuestion];
     
-    document.getElementById('quizTitle').textContent = `Вопрос ${gameState.currentQuestion + 1}`;
-    document.getElementById('currentQuestion').textContent = gameState.currentQuestion + 1;
-    document.getElementById('totalQuestions').textContent = quizQuestions.length;
-    document.getElementById('questionText').textContent = question.question;
-    
-    // Исправлено: используем изображения вместо эмодзи
+    const quizTitle = document.getElementById('quizTitle');
+    const currentQuestionSpan = document.getElementById('currentQuestion');
+    const totalQuestionsSpan = document.getElementById('totalQuestions');
+    const questionText = document.getElementById('questionText');
     const questionImage = document.getElementById('questionImage');
-    questionImage.innerHTML = `<img class="item-icon" src="${question.image}" alt="Вопрос" style="width: 120px; height: 120px; object-fit: contain;">`;
+    const helperText = document.getElementById('helperText');
     
-    document.getElementById('helperText').textContent = "Подумай хорошенько! Помни урок о сортировке мусора!";
+    if (quizTitle) quizTitle.textContent = `Вопрос ${gameState.currentQuestion + 1}`;
+    if (currentQuestionSpan) currentQuestionSpan.textContent = gameState.currentQuestion + 1;
+    if (totalQuestionsSpan) totalQuestionsSpan.textContent = quizQuestions.length;
+    if (questionText) questionText.textContent = question.question;
+    if (questionImage) {
+        questionImage.innerHTML = `<img class="item-icon" src="${question.image}" alt="Вопрос" style="width: 120px; height: 120px; object-fit: contain;">`;
+    }
+    if (helperText) {
+        helperText.innerHTML = "🤔 Подумай хорошенько! Выбери правильный ответ!";
+        helperText.style.color = '#000000'; // Черный цвет текста
+    }
     
-    // Создание вариантов ответов
     const answersContainer = document.getElementById('quizAnswers');
-    answersContainer.innerHTML = '';
-    
-    question.answers.forEach((answer, index) => {
-        const answerButton = document.createElement('button');
-        answerButton.className = 'answer-option';
-        answerButton.textContent = answer;
-        answerButton.onclick = () => selectAnswer(index);
-        answersContainer.appendChild(answerButton);
-    });
+    if (answersContainer) {
+        answersContainer.innerHTML = '';
+        
+        question.answers.forEach((answer, index) => {
+            const answerButton = document.createElement('button');
+            answerButton.className = 'answer-option';
+            answerButton.textContent = answer;
+            answerButton.style.color = '#000000'; // Черный цвет текста
+            answerButton.style.background = '#ffffff'; // Белый фон
+            answerButton.onclick = () => selectAnswer(index);
+            answersContainer.appendChild(answerButton);
+        });
+    }
     
     updateProgressDots();
+    gameState.isAnswerLocked = false;
 }
 
 function selectAnswer(selectedIndex) {
+    // Блокируем повторные ответы
+    if (gameState.isAnswerLocked) return;
+    gameState.isAnswerLocked = true;
+    
     const question = quizQuestions[gameState.currentQuestion];
     const answerButtons = document.querySelectorAll('.answer-option');
+    const helperText = document.getElementById('helperText');
+    const isCorrect = (selectedIndex === question.correct);
     
     // Отключение всех кнопок
     answerButtons.forEach(button => {
@@ -522,30 +748,41 @@ function selectAnswer(selectedIndex) {
     // Отметить выбранный ответ
     answerButtons[selectedIndex].classList.add('selected');
     
-    setTimeout(() => {
-        if (selectedIndex === question.correct) {
-            // Правильный ответ - 10 баллов за правильный ответ
-            answerButtons[selectedIndex].classList.add('correct');
-            gameState.correctAnswers++;
-            
-            const addedPoints = addScore(10);
-            document.getElementById('helperText').textContent = "Правильно! " + question.helper;
-            
-            // Показ всплывающее окно с очками для правильного ответа
-            showScorePopup(window.innerWidth / 2, 200, `+${addedPoints}`);
-        } else {
-            // Неверный ответ
-            answerButtons[selectedIndex].classList.add('incorrect');
-            answerButtons[question.correct].classList.add('correct');
-            document.getElementById('helperText').textContent = question.helper;
+    if (isCorrect) {
+        // Правильный ответ
+        answerButtons[selectedIndex].classList.add('correct');
+        gameState.correctAnswers++;
+        
+        const addedPoints = addScore(10);
+        
+        if (helperText) {
+            helperText.innerHTML = question.helper;
+            helperText.style.color = '#22c55e';
         }
+        
+        showScorePopup(window.innerWidth / 2, 200, `+${addedPoints}`);
+        
+        // Меняем цвет кружка на зеленый
+        updateProgressDotColor(gameState.currentQuestion, true);
+    } else {
+        // Неправильный ответ
+        answerButtons[selectedIndex].classList.add('incorrect');
+        answerButtons[question.correct].classList.add('correct');
+        
+        if (helperText) {
+            helperText.innerHTML = `❌ Неправильно! ${question.helper}`;
+            helperText.style.color = '#ef4444';
+        }
+        
+        // Меняем цвет кружка на красный
+        updateProgressDotColor(gameState.currentQuestion, false);
+    }
         
         updateScoreDisplay();
         
         setTimeout(() => {
             nextQuestion();
         }, 3000);
-    }, 500);
 }
 
 function nextQuestion() {
@@ -572,7 +809,8 @@ function nextQuestion() {
 function updateProgressDots() {
     const dots = document.querySelectorAll('.progress-dots .dot');
     dots.forEach((dot, index) => {
-        dot.classList.remove('current', 'completed');
+        dot.classList.remove('current', 'completed', 'incorrect');
+        
         if (index < gameState.currentQuestion) {
             dot.classList.add('completed');
         } else if (index === gameState.currentQuestion) {
@@ -581,39 +819,59 @@ function updateProgressDots() {
     });
 }
 
+function updateProgressDotColor(questionIndex, isCorrect) {
+    const dots = document.querySelectorAll('.progress-dots .dot');
+    if (dots[questionIndex]) {
+        dots[questionIndex].classList.remove('completed', 'incorrect');
+        if (isCorrect) {
+            dots[questionIndex].classList.add('completed');
+        } else {
+            dots[questionIndex].classList.add('incorrect');
+        }
+    }
+}
+
 // Показ результатов
-function showResults() {
+async function showResults() {
     showScreen('resultsScreen');
     gameState.currentScreen = 'results';
     
-    // Расчёт итоговой статистики
     const scorePercentage = Math.round((gameState.correctAnswers / quizQuestions.length) * 100);
     const sortingPercentage = Math.round((gameState.trashSorted / gameState.totalTrash) * 100);
     
-    // Обновление отображения результатов
-    document.getElementById('finalScore').textContent = gameState.score;
-    document.getElementById('correctAnswers').textContent = `${gameState.correctAnswers}/${quizQuestions.length}`;
-    document.getElementById('trashSorted').textContent = sortingPercentage + '%';
-    
-    // Выбор медали на основе результатов
+    const finalScoreElem = document.getElementById('finalScore');
+    const correctAnswersElem = document.getElementById('correctAnswers');
+    const trashSortedElem = document.getElementById('trashSorted');
     const medal = document.getElementById('finalMedal');
-    if (gameState.score >= 90) {
-        medal.textContent = '🥇';
-        document.getElementById('resultsTitle').textContent = 'Превосходно!';
-        document.getElementById('resultsDescription').textContent = 'Ты настоящий эко-герой! Отличное знание сортировки мусора!';
-    } else if (gameState.score >= 70) {
-        medal.textContent = '🥈';
-        document.getElementById('resultsTitle').textContent = 'Хорошо!';
-        document.getElementById('resultsDescription').textContent = 'Ты хорошо усвоил урок! Продолжай изучать экологию!';
-    } else if (gameState.score >= 50) {
-        medal.textContent = '🥉';
-        document.getElementById('resultsTitle').textContent = 'Неплохо!';
-        document.getElementById('resultsDescription').textContent = 'Ты на правильном пути! Повтори урок и попробуй ещё раз!';
-    } else {
-        medal.textContent = '🏆';
-        document.getElementById('resultsTitle').textContent = 'Старайся лучше!';
-        document.getElementById('resultsDescription').textContent = 'Не сдавайся! Попробуй ещё раз и станешь настоящим эко-героем!';
+    const resultsTitle = document.getElementById('resultsTitle');
+    const resultsDescription = document.getElementById('resultsDescription');
+    
+    if (finalScoreElem) finalScoreElem.textContent = gameState.score;
+    if (correctAnswersElem) correctAnswersElem.textContent = `${gameState.correctAnswers}/${quizQuestions.length}`;
+    if (trashSortedElem) trashSortedElem.textContent = sortingPercentage + '%';
+    
+    if (medal) {
+        if (gameState.score >= 90) medal.textContent = '🥇';
+        else if (gameState.score >= 70) medal.textContent = '🥈';
+        else if (gameState.score >= 50) medal.textContent = '🥉';
+        else medal.textContent = '🏆';
     }
+    
+    if (resultsTitle) {
+        if (gameState.score >= 90) resultsTitle.textContent = 'Превосходно!';
+        else if (gameState.score >= 70) resultsTitle.textContent = 'Хорошо!';
+        else if (gameState.score >= 50) resultsTitle.textContent = 'Неплохо!';
+        else resultsTitle.textContent = 'Старайся лучше!';
+    }
+    
+    if (resultsDescription) {
+        if (gameState.score >= 90) resultsDescription.textContent = 'Ты настоящий эко-герой! Отличное знание сортировки мусора!';
+        else if (gameState.score >= 70) resultsDescription.textContent = 'Ты хорошо усвоил урок! Продолжай изучать экологию!';
+        else if (gameState.score >= 50) resultsDescription.textContent = 'Ты на правильном пути! Повтори урок и попробуй ещё раз!';
+        else resultsDescription.textContent = 'Не сдавайся! Попробуй ещё раз и станешь настоящим эко-героем!';
+    }
+    
+    await forceUpdateUserScore('krosh', gameState.score);
 }
 
 // Инициализация карусели фактов
@@ -696,7 +954,8 @@ function playAgain() {
         trashSorted: 0,
         totalTrash: 6,
         currentSlide: 0,
-        totalSlides: 5
+        totalSlides: 5,
+        isAnswerLocked: false
     };
     
     // Сброс интерфейса
@@ -711,19 +970,18 @@ function playAgain() {
     updateLectureNavigation();
     
     // Сброс вспомогательного текста
-    const helperText = document.getElementById('sortingHelperText');
-    if (helperText) {
-        helperText.textContent = "Отлично! Перетаскивай предметы в правильные контейнеры!";
-        helperText.style.color = ''; // Убираем цвет
+    const sortingHelper = document.getElementById('sortingHelperText');
+    if (sortingHelper) {
+        sortingHelper.innerHTML = "Перетаскивай предметы в правильные контейнеры!";
+        sortingHelper.style.color = '';
     }
     
-    // Сброс текста подсказки викторины
-    const quizHelperText = document.getElementById('helperText');
-    if (quizHelperText) {
-        quizHelperText.textContent = "Подумай хорошенько! Помни урок о сортировке мусора!";
+    const quizHelper = document.getElementById('helperText');
+    if (quizHelper) {
+        quizHelper.innerHTML = "Подумай хорошенько! Помни урок о сортировке мусора!";
+        quizHelper.style.color = '';
     }
     
-    // Вернуться к вступлению
     showScreen('introScreen');
 }
 
@@ -830,6 +1088,11 @@ style.textContent = `
     .answer-option.incorrect {
         background: rgba(239, 68, 68, 0.3) !important;
         color: #7f1d1d !important;
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 `;
 
