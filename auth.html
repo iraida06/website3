@@ -298,15 +298,15 @@
 
     <script>
         // ========== НАСТРОЙКА FIREBASE ==========
-const firebaseConfig = {
- apiKey: "AIzaSyCY2mFu6xUL70sZhQKWv_CnM5DzGhfiPvI",
- authDomain: "ecoadventures-1c201.firebaseapp.com",
- projectId: "ecoadventures-1c201",
- storageBucket: "ecoadventures-1c201.firebasestorage.app",
- messagingSenderId: "865358200859",
- appId: "1:865358200859:web:62ec18608185782719b8be",
- measurementId: "G-JS1JE6PJZW"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyCY2mFu6xUL70sZhQKWv_CnM5DzGhfiPvI",
+            authDomain: "ecoadventures-1c201.firebaseapp.com",
+            projectId: "ecoadventures-1c201",
+            storageBucket: "ecoadventures-1c201.firebasestorage.app",
+            messagingSenderId: "865358200859",
+            appId: "1:865358200859:web:62ec18608185782719b8be",
+            measurementId: "G-JS1JE6PJZW"
+        };
         
         // Инициализация Firebase
         firebase.initializeApp(firebaseConfig);
@@ -322,6 +322,75 @@ const firebaseConfig = {
         ];
         
         let selectedAvatar = avatars[0];
+        
+        // ========== ЧЁРНЫЙ СПИСОК ЗАПРЕЩЁННЫХ СЛОВ ==========
+        const badWords = [
+            // Нецензурная лексика
+            'хуй', 'хер', 'пизда', 'пизд', 'бля', 'бляд', 'мудак', 'говно', 'жопа', 'срака', 'залупа',
+            'пидор', 'гандон', 'шлюха', 'ебал', 'ебат', 'ёбаный', 'нахуй', 'похуй', 'еблан', 'дебил',
+            'идиот', 'даун', 'кретин', 'тупой', 'тупица', 'урод', 'редиска', 'редис', 'редиск',
+            // Оскорбления
+            'лох', 'чмо', 'гнида', 'тварь', 'сука', 'стерва', 'козел', 'осел', 'баран', 'свинья',
+            'индюк', 'петух', 'курица', 'дура', 'дурак', 'глупец', 'болван', 'олень', 'козлина',
+            // Слова-провокации
+            'смерть', 'убий', 'убей', 'бомба', 'террор', 'насилие', 'взрыв', 'самоубийство',
+            // Английские аналоги
+            'fuck', 'shit', 'asshole', 'bastard', 'bitch', 'dick', 'cunt', 'whore',
+            // Маскированные варианты (частично)
+            'xuy', 'pizd', 'blya', 'pidor'
+        ];
+        
+        // Функция проверки на запрещённые слова
+        function containsBadWord(text) {
+            const lowerText = text.toLowerCase();
+            for (let badWord of badWords) {
+                if (lowerText.includes(badWord)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Функция проверки на повторяющиеся символы (аааа, бббб)
+        function hasTooManyRepeats(text) {
+            const repeatRegex = /(.)\1{4,}/; // 5 и более одинаковых символов подряд
+            return repeatRegex.test(text);
+        }
+        
+        // Функция проверки на допустимые символы
+        function isValidCharacters(text) {
+            const validRegex = /^[а-яА-ЯёЁa-zA-Z0-9\s\-]+$/;
+            return validRegex.test(text);
+        }
+        
+        // Функция проверки имени на безопасность
+        function validateUsername(username) {
+            if (!username) {
+                return { valid: false, message: '❌ Пожалуйста, введите имя!' };
+            }
+            
+            if (username.length < 2) {
+                return { valid: false, message: '❌ Имя должно содержать минимум 2 символа!' };
+            }
+            
+            if (username.length > 20) {
+                return { valid: false, message: '❌ Имя не должно превышать 20 символов!' };
+            }
+            
+            if (!isValidCharacters(username)) {
+                return { valid: false, message: '❌ Имя может содержать только буквы, цифры, пробел и дефис!' };
+            }
+            
+            if (containsBadWord(username)) {
+                return { valid: false, message: '❌ Пожалуйста, выберите другое имя. Такие слова использовать нельзя!' };
+            }
+            
+            if (hasTooManyRepeats(username)) {
+                return { valid: false, message: '❌ Имя не должно содержать много одинаковых символов подряд!' };
+            }
+            
+            return { valid: true, message: '' };
+        }
         
         // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
         function showError(message) {
@@ -383,17 +452,14 @@ const firebaseConfig = {
             const username = document.getElementById('regUsername').value.trim();
             const age = parseInt(document.getElementById('regAge').value);
             
-            // Валидация
-            if (!username) {
-                showError('❌ Пожалуйста, введите имя!');
+            // Валидация имени (расширенная)
+            const nameValidation = validateUsername(username);
+            if (!nameValidation.valid) {
+                showError(nameValidation.message);
                 return;
             }
             
-            if (username.length < 2) {
-                showError('❌ Имя должно содержать минимум 2 символа!');
-                return;
-            }
-            
+            // Валидация возраста
             if (isNaN(age) || age < 4 || age > 12) {
                 showError('❌ Возраст должен быть от 4 до 12 лет!');
                 return;
@@ -420,7 +486,6 @@ const firebaseConfig = {
                     avatar: selectedAvatar.img,
                     avatarName: selectedAvatar.name,
                     totalScore: 0,
-
                     level: 1,
                     levelTitle: "🌱 Юный эколог",
                     achievements: {
@@ -435,7 +500,6 @@ const firebaseConfig = {
                         krosh: 0,
                         sovunya: 0
                     },
-                    
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString()
                 };
@@ -452,7 +516,7 @@ const firebaseConfig = {
                 showSuccess('✅ Регистрация прошла успешно! Добро пожаловать, ' + username + '!');
                 
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = 'ГлавнаяОр.html';
                 }, 1500);
                 
             } catch (error) {
@@ -503,7 +567,7 @@ const firebaseConfig = {
                 showSuccess('✅ Добро пожаловать, ' + username + '!');
                 
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = 'ГлавнаяОр.html';
                 }, 1000);
                 
             } catch (error) {
@@ -518,14 +582,12 @@ const firebaseConfig = {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('registerForm').style.display = 'block';
             loadAvatars();
-            // Очищаем ошибки
             document.getElementById('errorMessage').style.display = 'none';
         }
         
         function switchToLogin() {
             document.getElementById('registerForm').style.display = 'none';
             document.getElementById('loginForm').style.display = 'block';
-            // Очищаем ошибки
             document.getElementById('errorMessage').style.display = 'none';
         }
         
@@ -535,13 +597,10 @@ const firebaseConfig = {
             if (currentUser) {
                 try {
                     const user = JSON.parse(currentUser);
-                    // Проверяем, существует ли пользователь в БД
                     const userDoc = await db.collection('users').doc(user.id).get();
                     if (userDoc.exists) {
-                        // Уже есть пользователь - отправляем на главную
-                        window.location.href = 'index.html';
+                        window.location.href = 'ГлавнаяОр.html';
                     } else {
-                        // Пользователь не найден в БД, удаляем из localStorage
                         localStorage.removeItem('currentUser');
                     }
                 } catch (error) {
@@ -555,7 +614,7 @@ const firebaseConfig = {
             checkAuth();
             loadAvatars();
             
-            // Добавляем обработчик Enter для форм
+            // Обработчик Enter для форм
             document.getElementById('loginUsername')?.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') login();
             });
